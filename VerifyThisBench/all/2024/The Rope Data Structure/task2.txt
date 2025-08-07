@@ -1,0 +1,1 @@
+(b) Prove that your function is memory-safe/crash free and always terminates

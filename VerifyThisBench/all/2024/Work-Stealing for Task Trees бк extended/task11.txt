@@ -1,0 +1,38 @@
+Version 2: Receiver-initiated Work-stealing The following alternative
+implementations of the acquire and communicate functions (along with definitions/state as shown) implement a receiver-initiated work-stealing scheme.
+const int NO_REQUEST = -1 // special " worker ID" value
+int r[P] // request cell per worker ; initially all NO_REQUEST
+const task NO_RESPONSE = -2 // code for ‘no task provided yet ’
+task t [P] // transfer cell per worker ; initially all NO_RESPONSE
+// called by workers when running out of work
+void acquire ( int i )
+while true // block until receiving a proper task
+t[i ] = NO_RESPONSE // initialize the cell for receiving a task
+int k = random in {0 , .. , P -1}\{ i } // pick random other worker
+if compare_and_swap (& r[ k], NO_REQUEST , i) // make a request
+while (t [i] == NO_RESPONSE ) // wait for a response
+communicate (i ) // reply negatively to incoming queries
+if (t [i] != NO_TASK ) // if we obtained a valid task
+add_task (i , t[i ]) // get ready to work on that task
+return
+// otherwise , if obtained a negative reply , then try again
+communicate (i ) // provide negative reply to incoming queries
+// check for incoming steal requests
+void communicate ( int i)
+int j = r[i ] // check our own request cell
+if j == NO_REQUEST // if no request , then nothing to do
+return
+if ( empty (q[i ]) )
+t[j ] = NO_TASK // if no task at hand , provide a negative reply
+else
+t[j ] = pop_top (q[i ]) // else , reply with a task
+r[i ] = NO_REQUEST // reset request cell to allow further requests
+The scheme here is for workers without work to (via acquire) first prepare
+their transfer cell for receiving a task, then pick a random other worker and
+register a request for work in their request cell. Then workers wait to receive a
+response: either NO TASK or a task ID (signifying a task transferred to them).
+All workers are responsible for checking whether they have received requests
+and responding, by periodically calling the communicate function.
+Tasks for version 2
+(k) Prove that all functions provided for this scheme are memory-safe / crash
+free (as for task (c) above).

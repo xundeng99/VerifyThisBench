@@ -1,0 +1,2 @@
+An integer array a of length n + 2 with n ≥ 2. It is known that at least
+two values stored in the array appear twice (i.e., there are at least two duplets)

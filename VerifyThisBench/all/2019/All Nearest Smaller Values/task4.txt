@@ -1,0 +1,2 @@
+3. Verify that, for each index i in the input sequence s, there are no values
+smaller than s[i] between left[i] + 1 and i.

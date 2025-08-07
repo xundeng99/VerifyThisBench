@@ -1,0 +1,697 @@
+(*
+  The problem states the algorithm in terms of physical
+    equality, which we do not have in Why3. Furthermore,
+    the hash is linear-time (traversing the full structure),
+    which is suspicious design.
+
+  To deal with issues, we verify a slight variant on the code,
+  where the dependence on physical addressing/full-blown hashing
+  is replaced by the use of explicit ids and a symbol generator
+  (typical hash-consing implementation in Ocaml actually does this
+   as one cannot use address for hashing, due to not having direct
+   access to the address and not being able to rely on them for hashing
+   due to GC compaction moving them).
+
+*)
+
+(*
+  Model of BDD, specification-only.
+  Provides two abstractions for BDD:
+  . First layer of abstraction:
+    the tree model (stripped of any internal
+    detail).
+  . Second layer (defined from tree model): the represented
+    propositional formula.
+*)
+module BDDModel
+
+  use int.Int
+  use option.Option
+
+  (* Tree is first level of abstraction. *)
+  type var = int
+  type tree =
+    | Node var tree tree
+    (* True, False clash with Booleans. *)
+    | N_True
+    | N_False
+
+  type env = var -> bool
+
+  (* Evaluation of tree*)
+  predicate eval (env:env) (n:tree) =
+    match n with
+    | Node v l r -> if env v then eval env l else eval env r
+    | N_True -> true
+    | N_False -> false
+    end
+
+  (* Ordering constraint. *)
+  predicate ordered_after (x:int) (n:tree) =
+    match n with
+    | Node y l r -> x < y /\ ordered_after y l /\ ordered_after y r
+    | _ -> true
+    end
+  predicate ordered (n:tree) =
+    match n with
+    | Node x l r -> ordered_after x l /\ ordered_after x r
+    | _ -> true
+    end
+
+  (* No useless intermediate nodes. *)
+  predicate decisions_relevant (n:tree) =
+    match n with
+    | Node x l r ->
+      l <> r /\ decisions_relevant l /\ decisions_relevant r
+    | _ -> true
+    end
+
+  (* Tree is canonical if ordered and without useless intermediate
+     node (projection of reduced to tree model). *)
+  predicate canonical (n:tree) = ordered n /\ decisions_relevant n
+
+  (* Battery of lemmas to prove the following result:
+     all elements of second abstraction layer have at
+     most one well-formed representant in first one. *)
+
+  (* Structural variant gets tricky for the recursion we need to do
+     in some proofs, size behave better. *)
+  let rec function size (n:tree) : int
+    ensures { result >= 0 }
+    variant { n }
+  = match n with
+    | N_True | N_False -> 0
+    | Node _ l r -> 1 + size l + size r
+    end
+
+  scope MetaTheory
+
+    (* 'Frame condition' from ordered-after:
+       changes in variables before the tree do not affect the
+       evaluation. *)
+    let rec ghost ordered_congruence
+      (x:int) (env1 env2:env) (n:tree)
+      requires { ordered_after x n }
+      requires { forall y:int. x < y -> env1 y = env2 y }
+      ensures  { eval env1 n = eval env2 n }
+      variant  { n }
+    = match n with
+      | Node _ l r -> ordered_congruence x env1 env2 l;
+                      ordered_congruence x env1 env2 r
+      | _ -> ()
+      end
+
+    (* Find a distinguisher if the node does not have the
+       canonical form of the boolean parameter, otherwise return None. *)
+    let rec ghost eval_constant_distinguisher (b:bool) (n:tree) :
+      (env:option env)
+      requires { canonical n }
+      returns {
+        | None -> n = if b then N_True else N_False
+        | Some env -> eval env n <> b }
+      variant { n }
+     = match n with
+       | N_True -> if b then None else Some (pure { fun (_:var) -> true })
+       | N_False -> if b then Some (pure { fun (_:var) -> true }) else None
+       | Node v l r ->
+         match eval_constant_distinguisher b l,
+               eval_constant_distinguisher b r with
+         | None, None -> absurd
+         | Some env, _ ->
+           let envl = pure { fun w -> w = v \/ env w } in
+           ordered_congruence v envl env l;
+           Some envl
+         | _, Some env ->
+           let envr = pure { fun w -> w <> v /\ env w } in
+           ordered_congruence v envr env r;
+           Some envr
+         end
+       end
+
+    (* Find a distinguisher environment for evaluation of two
+       canonical trees, or concludes they are equal if possible. *)
+    let rec ghost eval_distinguisher (n m:tree) : (env:option env)
+      requires { canonical n /\ canonical m }
+      returns  {
+        | None -> n = m
+        | Some env -> eval env n <> eval env m
+      }
+      variant { size n + size m }
+    = match n, m with
+      | (N_True | N_False), _ ->
+        eval_constant_distinguisher (pure { n = N_True }) m
+      | _, (N_True | N_False) ->
+        eval_constant_distinguisher (pure { m = N_True }) n
+      | Node nv nl nr, Node mv ml mr ->
+        (* Tricky sub-proof: they both start by the same variable.
+           Scheme: take the tree with smallest head variable,
+             and build distinguisher of its sub-trees by induction,
+             which makes an actual one by decision relevance.
+             Then, by choosing the head, we can find two environment
+             that differ only by the head and maps said tree distinctly.
+             However, they both maps the other tree to the same value
+             by congruence, so one of them is a distinguisher. *)
+        if nv <> mv then begin
+          (* symmetry breaking. Unlike N_True/N_False like above,
+             this one needs to be nested with inductive argument. *)
+          let symm_break (nv mv:int) (nl nr ml mr:tree) : (env:env)
+            requires { let n' = Node nv nl nr in
+              let m' = Node mv ml mr in
+              canonical n' /\ canonical m' /\
+              size n' + size m' = size n + size m }
+            requires { nv < mv }
+            ensures  { let n' = Node nv nl nr in
+              let m' = Node mv ml mr in
+              eval env n' <> eval env m' }
+          =
+            let n' = Node nv nl nr in let m' = Node mv ml mr in
+            match eval_distinguisher nl nr with
+            | None -> absurd
+            | Some env ->
+              let envl = pure { fun w -> w = nv \/ env w } in
+              let envr = pure { fun w -> w <> nv /\ env w } in
+              ordered_congruence nv envl env nl;
+              ordered_congruence nv envr env nr;
+              assert { eval envl n' <> eval envr n' };
+              ordered_congruence nv envl envr m';
+              if pure { eval envl n' = eval envl m' }
+              then envr else envl
+            end
+          in
+          Some (if nv < mv
+            then symm_break nv mv nl nr ml mr
+            else symm_break mv nv ml mr nl nr)
+        end else begin
+          (* With common head variable, more natural inductive
+             argument, find distinguisher for one
+             sub-tree if there is one. We still need to update
+             the environment to choose the right branch. *)
+          match eval_distinguisher nl ml,
+                eval_distinguisher nr mr with
+          | None , None -> None
+          | Some env, _ ->
+            let envl = pure { fun w -> w = nv \/ env w } in
+            ordered_congruence nv envl env nl;
+            ordered_congruence nv envl env ml;
+            Some envl
+          | _, Some env ->
+            let envr = pure { fun w -> w <> nv /\ env w } in
+            ordered_congruence nv envr env nr;
+            ordered_congruence nv envr env mr;
+            Some envr
+          end
+        end
+      end
+
+  end
+
+  (* Consequence of interest:
+       two canonical tree with the same evaluation
+       are identical. *)
+  let ghost eval_injective (n m:tree)
+    requires { canonical n /\ canonical m }
+    requires { forall env:var -> bool. eval env n = eval env m }
+    ensures  { n = m }
+  = match MetaTheory.eval_distinguisher n m with
+    | None -> ()
+    | Some _ -> absurd
+    end
+
+end
+
+(* Declare Node structure. *)
+module BDDNode
+
+  use int.Int
+  use BDDModel as M
+
+  type var = int
+  type node_cons =
+    | Node var node node
+    | N_True
+    | N_False
+  with node = {
+    id : int;
+    content : node_cons;
+  }
+
+  (* Id-stripping map, for isomorphism detection. *)
+  let rec ghost function project_cons (n:node_cons) : M.tree
+    variant { n }
+  = match n with
+    | Node v l r -> M.Node v (project l) (project r)
+    | N_True -> M.N_True
+    | N_False -> M.N_False
+    end
+  with ghost function project (n:node) : M.tree
+    variant { n }
+  = project_cons n.content
+
+  let predicate equal (n m:node_cons) = match n, m with
+    | N_True, N_True -> true
+    | N_False, N_False -> true
+    | Node nv nl nr, Node mv ml mr ->
+      nv = mv && nl.id = ml.id && nr.id = mr.id
+    | _, _ -> false
+    end
+
+  (* Axiomatize having something to build hashes. *)
+  val function hash_prod (n m:int) : int
+  let function hash (n:node_cons) : int = match n with
+    | N_False -> 0
+    | N_True -> 1
+    | Node v l r -> hash_prod v (hash_prod l.id r.id)
+    end
+
+  (* Check properties that are expected to build a hash table:
+     equal is an equivalence relation, and hash is congruent. *)
+  lemma equal_refl : forall n:node_cons. equal n n
+  lemma equal_symm : forall n m:node_cons. equal n m <-> equal m n
+  lemma equal_trans : forall n m o:node_cons.
+    equal n m -> equal m o -> equal n o
+  lemma hash_congr : forall n m:node_cons. equal n m -> hash n = hash m
+
+end
+
+module BDD
+
+  use BDDNode
+  use int.Int
+  use option.Option
+
+  (* Axiomatize the (hash-)table implementation.
+     A concrete implementation of BDD should be feasible
+     by cloning this module, instantiating with an actual
+     (hash-)table structure. *)
+  type hash_table 'a = mutable private {}
+  predicate model_mem (h:hash_table 'a) (k:node_cons)
+  val lemma model_mem_congr (h:hash_table 'a) (k1 k2:node_cons)
+    requires { equal k1 k2 }
+    ensures { model_mem h k1 <-> model_mem h k2 }
+  val ghost function model_eval (h:hash_table 'a) (k:node_cons) : 'a
+    requires { model_mem h k }
+  val lemma model_eval_congr (h:hash_table 'a) (k1 k2:node_cons)
+    requires { equal k1 k2 }
+    requires { model_mem h k1 }
+    ensures { model_eval h k1 = model_eval h k2 }
+
+  val find_opt (h:hash_table 'a) (k:node_cons) : option 'a
+    returns { None -> not (model_mem h k)
+            | Some v -> model_mem h k && model_eval h k = v }
+  val create () : hash_table 'a
+    ensures { forall k:node_cons. not (model_mem result k) }
+  val add (h:hash_table 'a) (k:node_cons) (b:'a) : unit
+    (* Stricter pre-condition than necessary, not a problem if
+       pre-condition is looser at instance. *)
+    requires { not (model_mem h k) }
+    writes   { h }
+    ensures  { model_mem h k && model_eval h k = b }
+    ensures  { forall k':node_cons. not (equal k k') ->
+      model_mem h k' <-> model_mem (old h) k' }
+    ensures  { forall k':node_cons. not (equal k' k) ->
+      model_mem h k' -> model_eval h k' = model_eval (old h) k' }
+
+  (* Specify that all nodes of the tree are properly
+     registered in the table. *)
+  let rec ghost predicate nodes_in_table (h:hash_table node) (nd:node)
+    variant { nd }
+  = model_mem h nd.content &&
+    pure { model_eval h nd.content = nd } &&
+    nodes_cons_in_table h nd.content
+  with ghost predicate nodes_cons_in_table
+    (h:hash_table node) (nd:node_cons)
+    variant { nd }
+  = match nd with
+    | Node _ l r -> nodes_in_table h l && nodes_in_table h r
+    | _ -> true
+    end
+
+  (* Specify ordering to specify 'growth' of the hash table. *)
+  predicate sub_table (h1 h2:hash_table 'a) =
+    forall k:node_cons. model_mem h1 k ->
+      model_mem h2 k && model_eval h2 k = model_eval h1 k
+
+  (* Check: ordering is indeed a partial order
+    (reflexive/transitive). *)
+  goal sub_table_partial_order :
+    (forall h:hash_table 'a. sub_table h h)
+    /\ (forall h1 h2 h3:hash_table 'a.
+      sub_table h1 h2 -> sub_table h2 h3 -> sub_table h1 h3)
+
+  (* Monotonicity properties. *)
+  let rec lemma nodes_in_table_monotonic
+    (h1 h2:{hash_table node}) (nd:node)
+    requires { nodes_in_table h1 nd }
+    requires { sub_table h1 h2 }
+    ensures  { nodes_in_table h2 nd }
+    variant  { nd }
+  = nodes_cons_in_table_monotonic h1 h2 nd.content;
+  with ghost nodes_cons_in_table_monotonic
+    (h1 h2:{hash_table node}) (nd:node_cons)
+    requires { nodes_cons_in_table h1 nd }
+    requires { sub_table h1 h2 }
+    ensures  { nodes_cons_in_table h2 nd }
+    variant  { nd }
+  = match nd with
+    | Node _ l r ->
+      nodes_in_table_monotonic h1 h2 l;
+      nodes_in_table_monotonic h1 h2 r
+    | _ -> ()
+    end
+
+  (* Builder for invariant witness. *)
+  let ghost function empty_witness () : {hash_table node}
+    ensures { forall nd:node_cons. not (model_mem result nd) }
+  = let x = create () in pure { x }
+
+  (* Bdd: wrap the table and symbol generator with an
+     invariant for registered elements. *)
+  type bdd = {
+    table         : hash_table node;
+    mutable fresh : int; (* Additional symbol generator *)
+  }
+  invariant { 0 <= fresh }
+  (* All node constructors within the hash-table
+     maps to a node with equal toplevel constructor,
+     whose tree is canonical, and whose nodes are all registered
+     in the table. *)
+  invariant { forall nd:node_cons.
+    model_mem table nd ->
+    let ev = model_eval table nd in
+    equal nd ev.content
+    /\ ev.id < fresh
+    /\ nodes_in_table table ev
+    /\ M.canonical (project ev)
+  }
+  (* Any two nodes registered in the table with the same identifiers
+     are equal. *)
+  invariant { forall nd1 nd2:node.
+    nodes_in_table table nd1 /\ nodes_in_table table nd2 ->
+    nd1.id = nd2.id -> nd1 = nd2
+  }
+  (* Node identifiers are unique for each tree that has
+     a node registered in the table. *)
+  invariant { forall nd1 nd2:node.
+    nodes_in_table table nd1 /\ nodes_in_table table nd2 ->
+    project nd1 = project nd2 -> nd1.id = nd2.id }
+  by { table = empty_witness (); fresh = 0 }
+
+  (* Hash-consing primitive. *)
+  let mk_node (b:bdd) (nc:node_cons) : (nd:node)
+    requires { nodes_cons_in_table b.table nc }
+    requires { M.canonical (project_cons nc) }
+    writes   { b.table, b.fresh }
+    ensures  { nodes_in_table b.table nd }
+    ensures  { sub_table (old b.table) b.table }
+    ensures  { project nd = project_cons nc }
+  = match find_opt b.table nc with
+    | Some nd -> nd
+    | None ->
+      let id = b.fresh in
+      let nd = { id = id; content = nc } in
+      b.fresh <- b.fresh + 1;
+      add b.table nc nd;
+      nd
+    end
+
+  let mk_true (b:bdd) : (nd:node)
+    writes { b.table, b.fresh }
+    ensures { sub_table (old b.table) b.table }
+    ensures { nodes_in_table b.table nd }
+    ensures { forall env:M.env. M.eval env (project nd) }
+    (* Last one can be stripped in specification wrappers provided
+       to clients, but is useful for internal calls. *)
+    ensures { forall x:int. M.ordered_after x (project nd) }
+  = mk_node b N_True
+
+  let mk_false (b:bdd) : (nd:node)
+    writes { b.table, b.fresh }
+    ensures { sub_table (old b.table) b.table }
+    ensures { nodes_in_table b.table nd }
+    ensures { forall env:M.env. not (M.eval env (project nd)) }
+    (* Internal spec. *)
+    ensures { forall x:int. M.ordered_after x (project nd) }
+  = mk_node b N_False
+
+  (* The original challenge use equal to compare left and right.
+     This is fine, but comparing the ids is more efficient.
+      We prove both version with the same contract, so they
+      are interchangeable for proof. *)
+  let mk_if_challenge (b:bdd) (v:var) (left right:node) : (nd:node)
+    requires { nodes_in_table b.table left }
+    requires { nodes_in_table b.table right }
+    requires { M.ordered_after v (project left) }
+    requires { M.ordered_after v (project right) }
+    writes { b.table, b.fresh }
+    ensures { sub_table (old b.table) b.table }
+    ensures { nodes_in_table b.table nd }
+    ensures { forall env:M.env.
+      M.eval env (project nd) <->
+      (if env v then M.eval env (project left)
+       else M.eval env (project right)) }
+    ensures { forall x:int. x < v -> M.ordered_after x (project nd) }
+  = if equal left.content right.content then left else
+    mk_node b (Node v left right)
+
+  let mk_if (b:bdd) (v:var) (left right:node) : (nd:node)
+    requires { nodes_in_table b.table left }
+    requires { nodes_in_table b.table right }
+    requires { M.ordered_after v (project left) }
+    requires { M.ordered_after v (project right) }
+    writes { b.table, b.fresh }
+    ensures { sub_table (old b.table) b.table }
+    ensures { nodes_in_table b.table nd }
+    ensures { forall env:M.env.
+      M.eval env (project nd) <->
+      (if env v then M.eval env (project left)
+       else M.eval env (project right)) }
+    ensures { forall x:int. x < v -> M.ordered_after x (project nd) }
+  = if left.id = right.id then left else mk_node b (Node v left right)
+
+  let mk_var (b:bdd) (v:var) : (nd:node)
+    writes { b.table, b.fresh }
+    ensures { sub_table (old b.table) b.table }
+    ensures { nodes_in_table b.table nd }
+    ensures { forall env:M.env.
+      M.eval env (project nd) <-> env v }
+  = mk_if b v (mk_true b) (mk_false b)
+
+  let rec mk_not (b:bdd) (n:node) : (nr:node)
+    requires { nodes_in_table b.table n }
+    writes { b.table, b.fresh }
+    ensures { sub_table (old b.table) b.table }
+    ensures { nodes_in_table b.table nr }
+    ensures { forall env:M.env.
+      M.eval env (project nr) <-> not (M.eval env (project n)) }
+    (* Internal spec. *)
+    ensures { forall x:int. M.ordered_after x (project n) ->
+      M.ordered_after x (project nr) }
+    variant { project n }
+  =
+    match n.content with
+    | N_True -> mk_false b
+    | N_False -> mk_true b
+    | Node v l r -> mk_if b v (mk_not b l) (mk_not b r)
+    end
+
+  (* For faithfulness to original code. *)
+  let compare (x y:int) : int
+    ensures { -1 <= result <= 1 }
+    (* Redundant (but symmetrical) post-condition. *)
+    ensures { x < y <-> result < 0 }
+    ensures { x = y <-> result = 0 }
+    ensures { x > y <-> result > 0 }
+  = if x < y then (-1) else if x = y then 0 else 1
+
+  let rec mk_and_challenge (b:bdd) (l r:node) : (nr:node)
+    requires { nodes_in_table b.table l }
+    requires { nodes_in_table b.table r }
+    writes { b.table, b.fresh }
+    ensures { sub_table (old b.table) b.table }
+    ensures { nodes_in_table b.table nr }
+    ensures { forall env:M.env.
+      M.eval env (project nr) <->
+      M.eval env (project l) /\ M.eval env (project r) }
+    (* Internal spec. *)
+    ensures { forall x:int. M.ordered_after x (project l) ->
+      M.ordered_after x (project r) ->
+      M.ordered_after x (project nr) }
+    variant { M.size (project l) + M.size (project r) }
+  = match l.content, r.content with
+    | N_True, _ -> r
+    | _, N_True -> l
+    | N_False, _ | _, N_False -> mk_false b
+    | Node va la ra, Node vb lb rb ->
+      (* Why3 do not have match on integers, emulate it. *)
+      let cmp = compare va vb in
+      if cmp = -1
+      then mk_if b va (mk_and_challenge b la r) (mk_and_challenge b ra r)
+      else if cmp = 0
+      then mk_if b va (mk_and_challenge b la lb) (mk_and_challenge b ra rb)
+      else if cmp = 1
+      then mk_if b vb (mk_and_challenge b l lb) (mk_and_challenge b l rb)
+      else absurd
+    end
+
+  (* Alternative version that skips some needless constructor calls. *)
+  let rec mk_and (b:bdd) (l r:node) : (nr:node)
+    requires { nodes_in_table b.table l }
+    requires { nodes_in_table b.table r }
+    writes { b.table, b.fresh }
+    ensures { sub_table (old b.table) b.table }
+    ensures { nodes_in_table b.table nr }
+    ensures { forall env:M.env.
+      M.eval env (project nr) <->
+      M.eval env (project l) /\ M.eval env (project r) }
+    (* Internal spec. *)
+    ensures { forall x:int. M.ordered_after x (project l) ->
+      M.ordered_after x (project r) ->
+      M.ordered_after x (project nr) }
+    variant { M.size (project l) + M.size (project r) }
+  = match l.content, r.content with
+    | N_True, _ | _, N_False -> r
+    | _, N_True | N_False, _ -> l
+    | Node va la ra, Node vb lb rb ->
+      if va < vb
+      then mk_if b va (mk_and_challenge b la r) (mk_and_challenge b ra r)
+      else if va = vb
+      then mk_if b va (mk_and_challenge b la lb) (mk_and_challenge b ra rb)
+      else mk_if b vb (mk_and_challenge b l lb) (mk_and_challenge b l rb)
+    end
+
+  let rec mk_or (b:bdd) (l r:node) : (nr:node)
+    requires { nodes_in_table b.table l }
+    requires { nodes_in_table b.table r }
+    writes { b.table, b.fresh }
+    ensures { sub_table (old b.table) b.table }
+    ensures { nodes_in_table b.table nr }
+    ensures { forall env:M.env.
+      M.eval env (project nr) <->
+      M.eval env (project l) \/ M.eval env (project r) }
+    (* Internal spec. *)
+    ensures { forall x:int.
+      M.ordered_after x (project l) /\ M.ordered_after x (project r) ->
+      M.ordered_after x (project nr)
+    }
+    variant { M.size (project l) + M.size (project r) }
+  = match l.content, r.content with
+    | N_False, _ | _, N_True -> r
+    | _, N_False | N_True, _ -> l
+    | Node va la ra, Node vb lb rb ->
+      if va < vb
+      then mk_if b va (mk_or b la r) (mk_or b ra r)
+      else if va = vb
+      then mk_if b va (mk_or b la lb) (mk_or b ra rb)
+      else mk_if b vb (mk_or b l lb) (mk_or b l rb)
+    end
+
+end
+
+(* Verification of the hashtbl specification:
+   clone with an instance using association lists, to check
+   that axiomatization of Hashtbl is consistent. *)
+module BDDCheck
+
+  use BDDNode
+  use option.Option
+  use list.List
+  use list.Mem
+
+  predicate member (n:node_cons) (l:list (node_cons, 'a)) =
+    match l with
+    | Nil -> false
+    | Cons (x,_) q -> equal x n \/ member n q
+    end
+  predicate lookup_is (n:node_cons) (l:list (node_cons,'a)) (t:'a) =
+    match l with
+    | Nil -> false
+    | Cons (x,y) q -> (equal x n /\ y = t) \/ lookup_is n q t
+    end
+  predicate uniq (l:list (node_cons, 'a)) =
+    match l with
+    | Nil -> true
+    | Cons (x,_) q -> not (member x q) /\ uniq q
+    end
+  let rec lemma lookup_is_member
+    (n:node_cons) (l:list (node_cons, 'a)) (t:'a)
+    requires { lookup_is n l t }
+    ensures  { member n l }
+  = match l with
+    | Nil -> ()
+    | Cons (x,_) q -> if not (equal x n) then lookup_is_member n q t
+    end
+  let rec lemma member_congruent
+    (n1 n2:node_cons) (l:list (node_cons, 'a))
+    requires { equal n1 n2 }
+    ensures  { member n1 l <-> member n2 l }
+    variant { l }
+  = match l with
+    | Nil -> ()
+    | Cons (_,_) q -> member_congruent n1 n2 q
+    end
+  let rec lemma lookup_congruent
+    (n1 n2:node_cons) (l:list (node_cons, 'a)) (t:'a)
+    requires { equal n1 n2 }
+    ensures  { lookup_is n1 l t <-> lookup_is n2 l t }
+    variant  { l }
+  = match l with
+    | Nil -> ()
+    | Cons (_,_) q -> lookup_congruent n1 n2 q t
+    end
+
+  type assoc_list 'a = {
+    mutable content : list (node_cons, 'a)
+  }
+  invariant { uniq content } by { content = Nil }
+
+  predicate model_mem (h:assoc_list 'a) (n:node_cons) =
+    member n h.content
+  let ghost function model_eval (h:assoc_list 'a) (n:node_cons) : 'a
+    requires { model_mem h n }
+    ensures  { lookup_is n h.content result }
+    ensures  { forall t. lookup_is n h.content t -> result = t }
+  = TODO
+
+  let create () : assoc_list 'a
+    ensures { forall n:node_cons. not (model_mem result n) }
+  = { content = Nil }
+  let find_opt (h:assoc_list 'a) (n:node_cons) : option 'a
+    returns { None -> not (model_mem h n)
+            | Some v -> model_mem h n && model_eval h n = v }
+  = let rec aux (l:list (node_cons, 'a)) : option 'a
+      returns { None -> not (member n l)
+              | Some v -> lookup_is n l v }
+      variant { l }
+    = match l with
+      | Nil -> None
+      | Cons (x,y) q -> if equal x n then Some y else aux q
+      end
+    in
+    aux h.content
+
+  let add (h:assoc_list 'a) (k:node_cons) (b:'a) : unit
+    requires { not (model_mem h k) }
+    writes   { h }
+    ensures  { model_mem h k && model_eval h k = b }
+    ensures  { forall k':node_cons. not (equal k k') ->
+      model_mem h k' <-> model_mem (old h) k' }
+    ensures  { forall k':node_cons. not (equal k' k) ->
+      model_mem h k' -> model_eval h k' = model_eval (old h) k' }
+  = h.content <- Cons (k,b) h.content
+
+  (* Let the provers figure out the proofs of congruence automatically
+     during refinement. *)
+  let lemma model_congruence (h:assoc_list 'a) (_ _ :node_cons) : unit = ()
+
+  clone BDD with
+    type hash_table = assoc_list,
+    predicate model_mem = model_mem,
+    val model_eval = model_eval,
+    val model_mem_congr = model_congruence,
+    val model_eval_congr = model_congruence,
+    val find_opt = find_opt,
+    val create = create,
+    val add = add
+
+end
+

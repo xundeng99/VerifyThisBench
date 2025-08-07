@@ -1,0 +1,10 @@
+Extension: Smart Array Copy version 2 Take either your version 0 or
+version 1 algorithm (or both!) and incorporate shuffling of the order in which
+segments are copied. That is, implement a similar scheme to the version 0
+shuffling of subsegment handling, but this time for segments: instead of always
+handling segment 0, then segment 1 etc., the order of segments handled by the
+new algorithm is also randomly shuffled.
+
+(i) Implement a new version of the algorithm, incorporating this additional
+shuffle (make clear which previous version(s) you are extending).
+

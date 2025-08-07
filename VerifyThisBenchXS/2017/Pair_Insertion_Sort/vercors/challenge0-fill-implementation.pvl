@@ -1,0 +1,11 @@
+
+
+class ChallengeOne {
+	
+	requires A != null;
+	context (\forall* int k; 0 <= k && k < A.length; Perm(A[k], write));
+	ensures (\forall int k; 0 <= k && k < A.length - 2; A[k] <= A[k+1]);
+	int[] sort(int[] A) {
+		TODO
+	}
+}

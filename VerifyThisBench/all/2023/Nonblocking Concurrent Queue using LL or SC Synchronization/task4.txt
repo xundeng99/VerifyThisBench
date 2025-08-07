@@ -1,0 +1,4 @@
+4. Assuming NT ≤ LEN, show that in any execution of P,
+a. all calls to enqueue return true (success);
+b. at the final state, the size of the queue (Tail-Head) is NT;
+c. at the final state, the contents of the queue are some permutation of the integers 0, ..., NT-1.

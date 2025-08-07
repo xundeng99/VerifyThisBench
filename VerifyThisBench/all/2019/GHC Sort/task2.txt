@@ -1,0 +1,3 @@
+Verification tasks.
+1. Write functional specifications of all procedures/functions/main steps of
+your implementation.

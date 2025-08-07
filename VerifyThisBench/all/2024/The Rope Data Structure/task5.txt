@@ -1,0 +1,20 @@
+(e) Implement a function delete(r:Rope, i:int, len:int) : Rope, that returns a Rope in which the len characters starting from position i have been removed from the represented string. The function may destructively update/reuse the passed Rope instance (or not) as you prefer. Specify and prove that your implementation has the correct effect on String represented by the resulting Rope. As an example of the last operation, if (for some Rope r) toStr(r) == "lizard" then it’s expected that
+toStr(delete(r,1,2)) == "lard". The delete operation can, for example, be implemented by adapting the following pseudocode: def delete ( tree , i , len ):
+( left , remaining ) = split ( tree , i)
+(_ , right ) = split ( remaining , len )
+return concat ( left , right )  in which split() is a function that splits a Rope in two, e.g. via the following pseudo-code:
+def split ( tree , i ):\n    if isLeaf(tree):\n    right = mkLeaf (tree.value [i ..])
+tree.value = tree . value [.. i]
+tree . weight = i
+return ( tree , right )
+else if i < weight :
+( left , right ) = split ( tree . left , i)
+return ( left , concat ( right , tree . right ))
+else if i > weight :
+( left , right ) = split ( tree . right , i - weight )
+return ( concat ( tree . left , left ) , right )
+else:
+return ( tree.left, tree.right)
+In the code above, mkLeaf(s) creates a new (leaf) Rope with value s. For a String s and in-bounds
+integer i, the notations s[..i] and s[i..] represent the strings in which (only) the first i elements have
+been kept/deleted, respectively. Your implementations need not precisely follow the pseudo-code above.

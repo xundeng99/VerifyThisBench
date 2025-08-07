@@ -1,0 +1,7 @@
+Verification tasks. Verify the following properties:
+2. member(k) == true, if insert(k) has been executed before (and returned
+true)
+You are free to re-phrase properties 2 but make sure you can prove
+things like:
+insert(1) || insert(2) || insert(3);
+{ assert(member(1) and !member(42)) } || insert(4) || insert(5);

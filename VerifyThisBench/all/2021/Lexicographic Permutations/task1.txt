@@ -1,0 +1,8 @@
+The verification challenges related to next are:
+1. Verify that next is memory safe.
+2. Verify that next terminates for every input.
+3. Verify that any changes on A performed by next(A) are permutations.
+4. Verify that, if next(A) returns false, then A is left unmodified and is indeed the
+“last permutation” in the permutation sequence.
+5. Verify that, if next(A) yields true, then A is modified to be the proper “next
+permutation” in the sequence

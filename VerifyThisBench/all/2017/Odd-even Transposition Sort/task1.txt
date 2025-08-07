@@ -1,0 +1,3 @@
+Verification Tasks:
+1. Specify and verify that the result of the even-odd sort algorithm is a sorted list.
+

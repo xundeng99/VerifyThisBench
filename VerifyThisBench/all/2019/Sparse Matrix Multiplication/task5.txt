@@ -1,0 +1,4 @@
+3. Verify that the concurrent algorithm still performs the same computation
+as the sequential algorithm. If time permits, you can also experiment
+with different work allocation policies and verify that they all behave
+correctly.

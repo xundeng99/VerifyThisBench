@@ -1,0 +1,34 @@
+The GHC Haskell compiler’s standard library includes an implementation of a
+generic sorting method which is a form of patience sorting (Named after the patience card game https://en.wikipedia.org/wiki/Patience_sorting.
+).
+To sort a sequence s,
+GHC sort works as follows:
+1. Split s into monotonic segments σ1, σ2, . . . , σm−1
+2. Reverse every segment that is decreasing
+3. Merge the segments pairwise in a way that preserves the order
+4. If all segments have been merged into one, that is an ordered copy of s;
+then terminate. Otherwise, go to step 3
+Merging in step 3 works like merging in Merge Sort:
+# merge ordered segments s and t
+merged := []
+x, y := 0, 0
+while x < length(s) and y < length(t):
+if s[x] < t[y]:
+merged.extend(s[x])
+x := x + 1
+else:
+merged.extend(t[y])
+y := y + 1
+# append any remaining tail of s or t
+while x < length(s):
+merged.extend(s[x])
+x := x + 1
+while y < length(t):
+merged.extend(t[y])
+y := y + 1
+For example, GHC sort applied to the sequence s = 3 2 8 9 3 4 5 goes
+through the following steps:
+• monotonic segments: 3 2 | 8 9 | 3 4 5
+• reverse decreasing segments: 2 3 | 8 9 | 3 4 5
+• merge segments pairwise: 2 3 8 9 | 3 4 5
+• merge segments pairwise again: 2 3 3 4 5 8 9, which is s sorted

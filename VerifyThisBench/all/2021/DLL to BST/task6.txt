@@ -1,0 +1,1 @@
+6. (Optional) Prove the above for an iterative version of size.

@@ -1,0 +1,4 @@
+If you have time, add the dequeue function...
+Let program P' be like P, except that each thread first enqueues its ID, then dequeues an entry, storing the result
+in some variable.
+6. Show that all executions of P' terminate.

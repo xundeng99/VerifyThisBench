@@ -1,0 +1,64 @@
+Problem Description
+This challenge is inspired by Jeff Preshing’s blog entry: The World’s Simplest
+Lock-Free Hash Table.
+This simple hash-set has a fixed capacity, only supports insert and membership query operations, and uses linear probing for collision handling. However, it is thread-safe and implemented lock-free. At the core, the insert operation uses a compare-and-swap (CAS) operation to find a free spot for adding
+the key to be inserted. An optimization replaces expensive CAS operations by
+cheaper load operations when the table fills up.
+The hashtable works with a key type K. It has a special value key_invalid
+:: K that is used as placeholder for empty slots, and cannot be used as key.
+Moreover, there is a function get_hash(size_t,K) :: size_t, such that get_hash(n,k)
+returns a hash-code for k, in the range [0, n).
+The compare and swap operation that we use returns the value stored in
+target after the operation (whether swapped or not). You are free to replace it
+with whatever similar operation your tool supports:
+T compare_and_swap(T &target, T oldv, T newv) {
+T result;
+atomic {
+if (target == oldv) target=newv;
+result=target;}
+return result;}
+typedef hset = array<K>
+hset empty(size_t n) {
+hset t = new K[n];
+for (size_t i = 0; i < n; ++ i) t[i]=key_invalid;
+return t;
+}
+// Assumes k 6= key_invalid
+// returns true if key was inserted, false if table is full
+bool insert(K k, hset t) {
+size_t n = t.length;
+size_t i0 = get_hash(n,k);
+size_t i = i0;
+do {
+{ // Optimization: probe for potentially free spot
+key kk = atomic_load(t[i]);
+if (kk == k) return true; // Key already in table
+if (kk 6= key_invalid) { // Spot taken, try next index
+i = (i + 1) mod n; continue;
+}
+}
+// Maybe i is still free when we try to put our key there
+key k
+0 = compare_and_swap(t[i],key_invalid,k);
+if (k
+0 == k) return true; // We (or someone else) stored our key
+i = (i + 1) mod n; // Someone else interfered with us, try next index
+} while (i 6= i0); // Stop if we went one full round
+return false; // Table is full
+}
+// Assumes k 6= key_invalid
+bool member(hset t, key k) {
+size_t n = t.length;
+size_t i0 = get_hash(n,k);
+size_t i = i0;
+do {
+key k
+0 = atomic_load(t[i]);
+if (k
+0 == k) return true; // found the key
+if (k
+0 == key_invalid) return false; // found empty entry. Key not in.
+i = (i + 1) mod n;
+} while (i 6= i0);
+return false; // Table full, our key is not in
+}

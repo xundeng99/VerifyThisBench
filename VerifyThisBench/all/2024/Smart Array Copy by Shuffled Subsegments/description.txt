@@ -1,0 +1,5 @@
+This challenge concerns array copy function(s) broadly inspired by real life implementations that aim to resist certain side-channel attacks. Their aim is to
+copy all array elements from one array to another array of the same length.
+This could be achieved with a simple loop through the array indices in order.
+However, to obfuscate the sequence of memory accesses performed, we aim to
+shuffle some of the operations performed on the arrays, as described below:

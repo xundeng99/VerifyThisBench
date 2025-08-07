@@ -1,0 +1,6 @@
+Implementation task. Implement the IRC procedure in your favorite language. The choice of data
+types for variables, registers, sets, and dictionaries is up to you. You may use iteration instead of recursion, or persistent data structures instead of mutable ones. You should implement the functionality
+of remove(), merge(), and available().
+You may leave the oracle functions pick() and coalesce() without implementation. If you do
+provide one, please note that the rest of the algorithm should not rely on any specific implementation
+details, beyond what is stated about pick() and coalesce() above.

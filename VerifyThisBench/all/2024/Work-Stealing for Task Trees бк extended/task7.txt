@@ -1,0 +1,2 @@
+(g) Verify that (after ROOT TASK has been inserted by worker 0) all the worker
+queues (in version 0, the single queue q[0]) eventually become empty.

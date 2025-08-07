@@ -1,0 +1,3 @@
+Verification tasks. You can assume that at the start of the procedure, dom A ⊆ dom G and no two
+interfering variables are pre-assigned the same physical register. Verify the following properties:
+1. Every variable in the initial domain of G gets an assignment in A at the end of the procedure.

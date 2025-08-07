@@ -1,0 +1,2 @@
+4. Verify that (parallel) shearsort satisfies the same specification as sequential
+shearsort, in which all parallel for-loops are replaced by sequential ones.

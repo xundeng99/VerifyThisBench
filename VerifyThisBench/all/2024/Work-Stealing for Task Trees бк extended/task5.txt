@@ -1,0 +1,2 @@
+(e) Verify that all task dependencies (as expressed by the tree structure) are
+respected: a subtask is never executed before its parent.

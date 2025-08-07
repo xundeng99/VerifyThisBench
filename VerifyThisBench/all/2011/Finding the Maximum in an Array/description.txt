@@ -1,0 +1,15 @@
+This challenge is an instance of Kaldewaij’s Search by Elimination [10], where an element with
+a given property is located by eliminating elements that do not have that
+property. The challenge was selected
+as it involves a relatively simple but
+interesting invariant, expressing that the maximal element is in the remaining
+search space rather than maintaining the maximal element found so far.
+public static int max(int[] a) {
+int x = 0;
+int y = a.length-1;
+while (x != y) {
+if (a[x] <= a[y]) x++;
+else y--;
+}
+return x;
+}

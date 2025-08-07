@@ -1,0 +1,1 @@
+(h) Implement a method insert(r: Rope, i: int, toInsert: String) that modifies the Rope, such that its new string representation includes the passed string toInsert inserted at position i. As an example of the last operation, if (for some Rope r) toStr(r) == "lard" then it’s expected that, after calling insert(r,1,"iz"), instead we have toStr(r) = "lizard".

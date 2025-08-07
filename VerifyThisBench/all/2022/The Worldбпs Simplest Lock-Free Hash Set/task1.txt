@@ -1,0 +1,6 @@
+If your tool does not support concurrency, and you also cannot model concurrency on a more abstract level, implement and verify the sequential version of
+this hash-set as last resort.
+Implementation task. Implement the above hash-table. Use whatever atomic
+operations your tool supports, but try to stay lock-free. If you have to use locks,
+use a fine-grained lock around compare_and_swap, rather than locking the whole
+table for the duration of an insert/member operation.

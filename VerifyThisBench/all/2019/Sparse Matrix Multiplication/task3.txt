@@ -1,0 +1,3 @@
+Verification tasks.
+1. Verify that the sequential muplitplication algorithm indeed performs standard matrix multiplication (that is, it computes yi = ∑k xk × mk,i).
+

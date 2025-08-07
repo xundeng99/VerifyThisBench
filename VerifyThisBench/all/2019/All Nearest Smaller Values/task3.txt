@@ -1,0 +1,4 @@
+2. Verify that, for each index i in the input sequence s, if i has a left neighbor
+in s, then the value stored in s at the position of the left neighbor is smaller
+than the value stored at position i, namely, if left[i] is a valid index of s
+then s[left[i]] < s[i].

@@ -1,0 +1,9 @@
+Extension The paper “Ropes: an Alternative to Strings” (Software: Practice and Experience, 1995)
+describes the following optimisation for the concatenation operation:
+In the general case, concatenation involves simply allocating a concatenation node containing
+two pointers to the two arguments. For performance reasons, it is desirable to deal with the
+common case in which the right argument is a short flat string specially. If both arguments are
+short leaves, we produce a flat rope (leaf) consisting of the concatenation. This greatly reduces
+space consumption and traversal times. If the left argument is a concatenation node whose right
+child is a short leaf, and the right argument is also a short leaf, then we concatenate the two
+leaves, and then concatenate the result to the left son of the left argument.

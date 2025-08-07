@@ -1,0 +1,143 @@
+BACKGROUND
+----------
+
+Together with a suffix array, LCP can be used to solve interesting text
+problems, such as finding the longest repeated substring (LRS) in a text.
+
+A suffix array (for a given text) is an array of all suffixes of the
+text. For the text [7,8,8,6], the suffix array is
+[[7,8,8,6],
+   [8,8,6],
+     [8,6],
+       [6]]
+
+Typically, the suffixes are not stored explicitly as above but
+represented as pointers into the original text. The suffixes in a suffix
+array  are sorted in lexicographical order. This way, occurrences of
+repeated substrings in the original text are neighbors in the suffix
+array. 
+
+For the above, example (assuming pointers are 0-based integers), the
+sorted suffix array is:
+
+[3,0,2,1]
+
+//LRS.java
+public class LRS {
+
+    private static int solStart = 0;
+    private static int solLength = 0;
+    private static int[] a;
+
+    public static void main(String[] args) {
+        a = new int[args.length];
+        for (int i=0; i<args.length; i++) {
+            a[i]=Integer.parseInt(args[i]);
+        }
+        doLRS();
+        System.out.println(solStart+"->"+solLength);
+    }
+
+
+
+    public static void doLRS() {
+        SuffixArray sa = new SuffixArray(a);
+
+        for (int i=1; i < a.length; i++) {
+            int length = sa.lcp(i);
+            if (length > solLength) {
+                solStart = sa.select(i);
+                solLength = length;
+            }
+        }
+    }
+
+}
+
+
+//Based on code by Robert Sedgewick and Kevin Wayne.
+//SuffixArray.java
+public class SuffixArray {
+
+    private final int[] a;
+    private final int[] suffixes;
+    private final int N;
+
+    public SuffixArray(int[] a) {
+        this.a = a;
+        N = a.length;
+        suffixes = new int[N];
+        for (int i = 0; i < N; i++) suffixes[i] = i;
+        sort(suffixes);
+    }
+
+
+    public int select(int i) { 
+        return suffixes[i]; 
+    }
+
+ 
+    private int lcp(int x, int y) {
+        int l = 0;
+        while (x+l<N && y+l<N && a[x+l]==a[y+l]) {
+            l++;
+        }
+        return l;
+    }
+
+
+    public int lcp(int i) {
+        return lcp(suffixes[i], suffixes[i-1]);
+    }
+
+
+    public int compare(int x, int y) {
+        if (x == y) return 0;
+        int l = 0;
+
+        while (x+l<N && y+l<N && a[x+l] == a[y+l]) {
+            l++;
+        }
+
+        if (x+l == N) return -1;
+        if (y+l == N) return 1;
+        if (a[x+l] < a[y+l]) return -1;
+        if (a[x+l] > a[y+l]) return 1;
+        
+        throw new RuntimeException();
+    }
+
+
+    public void sort(final int[] data) {
+        for(int i = 0; i < data.length + 0; i++) {
+            for(int j = i; j > 0 && compare(data[j - 1], data[j]) > 0; j--) {
+                final int b = j - 1;
+                final int t = data[j];
+                data[j] = data[b];
+                data[b] = t;
+            }
+        }
+    }
+
+
+    public static void main(String[] argv) {
+        int[] arr = {1,2,2,5};
+        SuffixArray sa = new SuffixArray(arr);
+        System.out.println(sa.lcp(1,2));
+        int[] brr = {1,2,3,5};
+        sa = new SuffixArray(brr);
+        System.out.println(sa.lcp(1,2));
+        int[] crr = {1,2,3,5};
+        sa = new SuffixArray(crr);
+        System.out.println(sa.lcp(2,3));
+        int[] drr = {1,2,3,3};
+        sa = new SuffixArray(drr);
+        System.out.println(sa.lcp(2,3));
+    }
+
+
+}
+
+
+
+//Based on code by Robert Sedgewick and Kevin Wayne.

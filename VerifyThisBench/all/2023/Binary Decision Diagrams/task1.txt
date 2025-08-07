@@ -1,0 +1,4 @@
+Translate the BDD library above into the language of your choice and use a verification tool to check the following
+properties:
+1. Verify the memory safety
+

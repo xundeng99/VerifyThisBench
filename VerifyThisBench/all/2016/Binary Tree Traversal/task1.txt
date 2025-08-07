@@ -1,0 +1,5 @@
+Tasks. Prove that:
+1. upon termination of the algorithm, all mark fields are set
+2. the tree shape does not change
+3. the code does not crash, and
+4. the code terminates.

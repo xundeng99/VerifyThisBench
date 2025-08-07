@@ -1,0 +1,2 @@
+Implement and verify a program that find two such values. You may
+assume that the array contains values between 0 and n − 1.

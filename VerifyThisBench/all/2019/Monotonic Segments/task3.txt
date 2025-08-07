@@ -1,0 +1,2 @@
+2. Verify that the output sequence satisfies property monotonic given above
+(without the maximality requirement).

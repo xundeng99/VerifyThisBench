@@ -1,0 +1,3 @@
+Verification tasks.
+1. Verify that your algorithm returns a well formed binary tree, with one
+node per element (or per position) in the sequence.

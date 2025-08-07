@@ -1,0 +1,1 @@
+(c) Show that your implementation, if invoked on any well-formed list in finite memory, terminates.

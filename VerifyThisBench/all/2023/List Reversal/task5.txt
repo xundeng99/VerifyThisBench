@@ -1,0 +1,1 @@
+(e) Show that the space and time consumed are linear in the length of the list.

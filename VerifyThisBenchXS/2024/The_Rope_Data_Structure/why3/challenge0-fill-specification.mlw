@@ -1,0 +1,113 @@
+
+
+use int.Int
+use seq.Seq
+use seq.FreeMonoid
+
+(** abstract type of characters *)
+type char
+
+(** strings are sequences of characters *)
+type str = seq char
+
+(** Ropes are implemented here as an immutable data strcuture. *)
+type rope =
+  | Leaf str
+  | Node int rope rope
+
+(** Function `to_str` is a logic function (keyword `function`)
+    that can be used in programs as well (keyword `let`).  *)
+let rec function to_str (r: rope) : str =
+  match r with
+  | Leaf s       -> s
+  | Node _ rl rr -> to_str rl ++ to_str rr
+  end
+
+(** We introduce a `valid` predicate to express that the weight
+    stored in `Node` is indeed the length of the left subrope. *)
+predicate valid (r: rope) =
+  match r with
+  | Leaf _s       -> true
+  | Node wl rl rr -> wl = length (to_str rl) && valid rl && valid rr
+  end
+
+(** Length of a rope, descending along the right spine. *)
+let rec str_len (r: rope) : int
+  requires { TODO } 
+  ensures  { TODO }
+= match r with
+  | Leaf s -> length s
+  | Node wl _ rr -> wl + str_len rr
+  end
+
+(** Rope concatenation (see below for the optimized version). *)
+let concat (left right: rope) : rope
+  requires { TODO } 
+  ensures  { TODO }
+= Node (str_len left) left right
+
+(** Splitting a rope at a given position. *)
+let rec split (r: rope) (i: int) : (left : rope, right: rope)
+  requires { TODO } 
+  ensures  { TODO }
+= match r with
+  | Leaf s ->
+      (Leaf s[..i], Leaf s[i..])
+  | Node wl rl rr ->
+      if i < wl then
+        let rll, rlr = split rl i in
+        (rll, concat rlr rr)
+      else if i > wl then
+        let rrl, rrr = split rr (i - wl) in
+        (concat rl rrl, rrr)
+      else
+        (rl, rr)
+  end
+
+(** Deleting characters `i..i+len`. *)
+let delete (r: rope) (i len: int) : rope
+  requires { TODO } 
+  ensures  { TODO }
+= let left, remaining = split r i in
+  let _, right = split remaining len in
+  concat left right
+
+(** Predicate `is_short` is left uninterpreted, as required. *)
+val predicate is_short (r: str)
+
+
+(** Inserting a rope at position `i`. *)
+let insert (r: rope) (i: int) (to_insert: str) : rope
+  requires { TODO } 
+  ensures  { TODO }
+= let left, right = split r i in
+  concat left (concat (Leaf to_insert) right)
+
+(** The lizard examples *)
+
+val constant char_l: char
+val constant char_i: char
+val constant char_z: char
+val constant char_a: char
+val constant char_r: char
+val constant char_d: char
+
+let constant str_lizard: str =
+  cons char_l (cons char_i (cons char_z (
+  cons char_a (cons char_r (cons char_d empty)))))
+
+let constant str_lard : str =
+  cons char_l (cons char_a (cons char_r (cons char_d empty)))
+
+let test_delete (r: rope) : rope
+  requires { TODO } 
+  ensures  { TODO }
+= delete r 1 2
+
+let constant str_iz : str =
+  cons char_i (cons char_z empty)
+
+let test_insert (r: rope) : rope
+  requires { TODO } 
+  ensures  { TODO }
+= insert r 1 str_iz

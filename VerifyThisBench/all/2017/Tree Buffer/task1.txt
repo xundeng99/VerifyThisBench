@@ -1,0 +1,6 @@
+Verification Tasks:
+1. Verify that the naive and the caterpillar implementations are functionally equivalent. You
+are encouraged to translate (a) the naive implementation into your favorite specification
+language, and (b) the caterpillar implementation into your favorite imperative language.
+Your caterpillar implementation must use only constant time for add, ignoring time
+possibly spent in the garbage collector.

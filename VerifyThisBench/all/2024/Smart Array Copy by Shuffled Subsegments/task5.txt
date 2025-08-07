@@ -1,0 +1,10 @@
+(e) Verify that, on termination, the elements of DEST will be exactly those stored originally in SRC, and that the elements of SRC will be unchanged. For this version 0, the elements should be in the same order in both arrays. Notes
+• In case it helps get started, you might try a simplification of the algorithm
+in which you build in the assumption that there is only a single segment
+(with several subsegments). That is, assuming q = 1 and n/2 < m ≤ n.
+In this case there is only one “split” of the array (into subsegments, as well
+as some remainder r); the subsegments will be copied in shuffled order.
+• If you cannot prove properties for arbitrary values of n, m etc. you may
+fix some of these parameters as pre-defined constants in your work. Please
+label these clearly as well as whether or not these specific values can be
+freely changed (without substantially affecting your verification results).

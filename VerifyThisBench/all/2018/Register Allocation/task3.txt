@@ -1,0 +1,1 @@
+2. Verify that If a variable has a register pre-assigned to it, this assignment does not change at the end.

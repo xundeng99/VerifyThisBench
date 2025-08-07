@@ -1,0 +1,16 @@
+Verification Tasks:
+1. Specify and verify that the result of the pair insertion sort algorithm is a sorted array.
+2. Specify and verify that the result of the pair insertion sort algorithm is a permutation of
+the input array.
+Getting Started. To make the exercise more accessible, feel free to start with stripped down
+versions of the problem. A few possibilities for simplifications are:
+1. Absence of unexpected runtime exceptions
+2. Verify a single-step insertion sort algorithm in which every element is handled
+individually.
+3. For permutations proofs, it may be simpler to not remember the values in temporary
+variables (x and y in the pseudocode), but to swap repeatedly.
+Challenge. Try to get as close as possible to Oracle's implementation (outlined above) from the
+beginning.
+Verification Bounds. In reality, pair insertion sort is used only for small problem instances: in
+JDK’s case, if the array has less than 47 elements. If it helps your efforts, you may assume a
+suitable length restriction for the array

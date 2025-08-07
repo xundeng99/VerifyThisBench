@@ -1,0 +1,4 @@
+2. Show that matrix multiplication is associative, i.e., the order in which matrices are
+multiplied can be disregarded: A(BC) = (AB)C. To show this, you should write a program
+that performs the two different computations, and then prove that the result of the two
+computations is always the same.

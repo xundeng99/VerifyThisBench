@@ -1,0 +1,2 @@
+(d) Show that, at termination, the resulting list is the reverse of the original. For lasso-shaped lists, this
+means the initial segment is unchanged and the cycle is reversed, as explained above.

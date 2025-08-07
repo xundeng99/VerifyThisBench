@@ -1,0 +1,3 @@
+(b) Show that your implementation, if invoked on a well-formed list, is free of runtime violations; in
+particular, no invalid pointer operation occurs. Part of this task is to specify precisely “well-formed.”
+(Both NULL-terminated and lasso-shaped lists are considered well-formed.)

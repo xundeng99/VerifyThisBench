@@ -1,0 +1,2 @@
+2. Specify and verify that the result of the even-odd sort algorithm is a permutation of the
+input list.

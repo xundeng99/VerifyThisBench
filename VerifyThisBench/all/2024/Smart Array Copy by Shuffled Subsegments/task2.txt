@@ -1,0 +1,1 @@
+(b) Write an implementation of a function (or similar) SmartCopy which performs Smart Array Copy version 0, as described above. 

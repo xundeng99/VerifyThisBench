@@ -1,0 +1,1 @@
+2. the sum of every contiguous subarray within a is not greater than the returned value.

@@ -1,0 +1,1 @@
+(a) Implement a function toStr(r:Rope): String that returns the string represented by a Rope. The toStr() function should correspond to the recursive definition repr described above (in particular, it is inefficient: it traverses the entire tree, ignoring the integer weights).

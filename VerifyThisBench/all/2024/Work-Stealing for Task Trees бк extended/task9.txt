@@ -1,0 +1,1 @@
+(i) Prove that the same properties (d)–(g) as for version 0 for this new senderinitiated concurrent scheme hold (in particular, assuming P > 1).

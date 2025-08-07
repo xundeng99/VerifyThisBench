@@ -1,0 +1,1 @@
+As a bonus, prove that the nodes are visited in depth-first order

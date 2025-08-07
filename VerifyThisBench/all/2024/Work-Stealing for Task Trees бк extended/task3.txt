@@ -1,0 +1,3 @@
+(c) Verify that the pseudocode functions given are memory-safe / crash free
+(assuming that the queue functions are similarly safe): in particular, verify
+that all array accesses performed are guaranteed to be within bounds.

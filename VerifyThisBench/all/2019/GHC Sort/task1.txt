@@ -1,0 +1,6 @@
+Implementation task. Implement GHC sort in your programming language
+of choice. Again, you can represent the sequences of ordered segments using
+any data structure or abstract representation that works well with your tool.
+To compute the monotonic segments of the input you can rely on the algorithm developed in part 1 of this challenge. If you find it preferable, you
+can add the reversal (step 2) to the same pass that constructs the monotonic
+segments in step 1.

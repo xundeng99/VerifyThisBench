@@ -1,0 +1,11 @@
+Version 0: Sequential task processing We start with a sequential scheme:
+here, we can assume P = 1 and so there is a unique worker executing the main
+function with ID (i parameter) 0. In this version, the two functions acquire
+and communicate are no-ops: their implementations are empty, and calling them
+does nothing. The (only) worker will initially add the root task to its queue,
+and continually execute a task in its queue, queueing up its subtasks, and so
+on. We do not handle worker termination in the code (which is complex for
+concurrent schemes), but all tasks should eventually be executed this way.
+Tasks for version 0
+(a) Formalise the assumption that the initial values stored in the array (of
+length two arrays) subtask define a valid binary tree rooted at task ID 0.

@@ -1,0 +1,6 @@
+The attached Java code contains an implementation of a suffix array
+(SuffixArray.java), consisting essentially of a lexicographical
+comparison on arrays, a sorting routine, and LCP.
+
+The client code (LRS.java) uses these to solve the LRS problem. Verify
+that it does so correctly.

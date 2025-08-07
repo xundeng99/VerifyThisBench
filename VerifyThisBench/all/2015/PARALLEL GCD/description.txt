@@ -1,0 +1,19 @@
+Algorithm description
+---------------------
+Various parallel GCD algorithms exist. In this challenge, we consider a
+simple Euclid-like algorithm with two parallel threads. One thread
+subtracts in one direction, the other thread subtracts in the other
+direction, and eventually this procedure converges on GCD.
+Implementation
+--------------
+In pseudocode, the algorithm is described as follows:
+(
+WHILE a != b DO
+IF a>b THEN a:=a-b ELSE SKIP FI
+OD
+||
+WHILE a != b DO
+IF b>a THEN b:=b-a ELSE SKIP FI
+OD
+);
+OUTPUT a

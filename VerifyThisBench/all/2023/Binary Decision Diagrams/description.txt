@@ -1,0 +1,53 @@
+Binary Decision Diagrams (BDD) allow extremely compact representations of propositional formulas by sharing
+common sub-expressions. Formulas are stored as directed acyclic graphs, where each internal node represents
+the conditional test of a variable 𝑥. Two leaf nodes are used to indicate the values ⊤ and ⊥. Using a BDD, the
+formula (𝑥1∧ 𝑥2) ∨ 𝑥3 would be represented as the following graph:
+Dotted edges are used to indicate paths where the variable is false, while solid edges indicate paths where the
+variable is true.
+A Reduced Ordered BDD (ROBDD) has the following additional properties:
+1. A BDD is ordered if its variables appear in the same order along every path
+2. A BDD is reduced if neither of the following rules can be applied:
+a. Eliminate any nodes whose children are isomorphic
+b. Combine isomorphic subgraphs
+We can implement a simple library to build ROBDDs in Ocaml in the following manner: 
+type var = int
+type node = | Node of { var: int; left: node; right: node; } | True | False
+let equal n m = match n, m with
+| True, True -> true
+| False, False -> true
+| Node n, Node m -> n.var = m.var && n.right == m.right && n.left == m.left
+| _ -> false
+module Tbl = Hashtbl.Make(struct
+type t = node
+let equal = equal
+let hash = Hashtbl.hash
+end)
+type bdd = node Tbl.t
+let mk_bdd () : bdd = Tbl.create 32
+let mk_node (b : bdd) (n : node) : node =
+match Tbl.find_opt b n with
+| Some n -> n
+| None -> Tbl.add b n n; n
+let mk_true b : node = mk_node b True
+let mk_false b : node = mk_node b False
+let mk_if b var left right =
+if equal left right then left else
+mk_node b (Node { var; left; right })
+let rec mk_not (b : bdd) (n : node) : node = match n with
+| True -> mk_false b
+| False -> mk_true b
+| Node { var; left; right } -> mk_if b var (mk_not b left) (mk_not b right)
+let rec mk_and (b : bdd) (l : node) (r : node) : node = match l, r with
+| True, _ -> r
+| _, True -> l
+| False, _ | _, False -> mk_false b
+| Node {var = vara; left = lefta; right = righta }, Node { var = varb; left =
+leftb; right = rightb } ->
+begin match compare vara varb with
+| -1 -> mk_if b vara (mk_and b lefta r) (mk_and b righta r)
+| 0 -> mk_if b vara (mk_and b lefta leftb) (mk_and b righta rightb)
+| 1 -> mk_if b varb (mk_and b l leftb) (mk_and b l rightb)
+| _ -> assert false
+end
+In this implementation each BDD node holds references to its two children, forming the DAG of a formula.
+

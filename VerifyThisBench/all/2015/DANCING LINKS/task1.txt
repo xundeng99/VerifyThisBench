@@ -1,0 +1,2 @@
+Implement the data structure with these operations, and specify and
+verify that they behave in the way described above.

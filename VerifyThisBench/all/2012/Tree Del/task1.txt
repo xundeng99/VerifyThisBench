@@ -1,0 +1,3 @@
+Verify that the following procedure removes the
+node with the minimal key from the tree. After removal, the data
+structure should again be a binary search tree.

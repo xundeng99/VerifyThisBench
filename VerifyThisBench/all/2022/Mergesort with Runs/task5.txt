@@ -1,0 +1,2 @@
+Verification tasks. Verify the following properties:
+4. merge returns the correct run indexes

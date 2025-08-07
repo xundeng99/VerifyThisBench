@@ -1,0 +1,3 @@
+Implementation task. Implement the algorithm to compute the sequence of
+left neighbors from an input sequence. You can use an existing implementation
+of stacks or use directly a sequence for the stack.

@@ -1,0 +1,7 @@
+The toStr() function is inefficient, but the idea is to now implement several efficient functions (that avoid
+calling this function) and specify them in terms of this simpler function (if your verification tool supports
+these notions, toStr() calls should only be made in specifications / ghost code in the tasks below).
+(c) Implement a recursively-defined function strLen(r:Rope): int that efficiently computes the length of
+the string represented by a Rope (i.e. using the weight field values). Prove that, if result represents
+the result of calling this function on a Rope r, the property result == length(toStr(r)) where
+length represents a length function on String values.

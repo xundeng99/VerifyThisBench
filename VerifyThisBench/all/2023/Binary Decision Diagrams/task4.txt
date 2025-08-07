@@ -1,0 +1,3 @@
+4. Verify that each operation preserves the properties of a ROBDD
+a. If the input BDD is ordered, then the output of each operation is an ordered BDD
+b. Similarly, if the input BDD is reduced, then the output is also reduced

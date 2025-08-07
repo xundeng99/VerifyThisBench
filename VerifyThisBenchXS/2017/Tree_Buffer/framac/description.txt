@@ -1,0 +1,33 @@
+The task is to verify a data structure called tree buffer. We start with a simple version, and then
+we will introduce more requirements related to efficiency.
+Consider the OCaml interface
+type 'a buf
+val empty : int -> 'a buf
+val add : 'a -> 'a buf -> 'a buf
+val get : 'a buf -> 'a list
+with the following implementation
+type 'a buf = { h : int; xs : 'a list }
+let rec take n xs = match n, xs with
+ | 0, _ | _, [] -> []
+ | n, x :: xs -> x :: take (n-1) xs
+let empty h = { h; xs = [] }
+let add x { h; xs } = { h; xs = x :: xs }
+let get { h; xs } = take h xs
+When we create a tree buffer, we fix a parameter h, and all invocations to get will return the last
+h elements added in the tree buffer. Incidentally, this is a tree in the sense that one can write
+code like the following:
+let e = empty 3;; (* e is a root *)
+let t1 = add 1 e;; (* t1 has parent e *)
+let t2 = add 2 t1;; (* t2 has parent t1 *)
+let t3 = add 3 t1;; (* t3 has parent t1 *)
+One problem with our current implementation is that it wastes memory. A possible solution is the
+following caterpillar implementation:
+type 'a buf = {h : int; xs : 'a list; xs_len : int; ys : 'a list}
+let empty h = { h; xs = []; xs_len = 0; ys = [] }
+let add x { h; xs; xs_len; ys } =
+ if xs_len = h - 1
+ then { h; xs = []; xs_len = 0; ys = x :: xs }
+ else { h; xs = x :: xs; xs_len = xs_len + 1; ys }
+let get { h; xs; xs_len; ys } = take h (xs @ ys)
+The length of xs is always less that h because, whenever it would become h, its content is
+moved into ys, and the old content of ys is thrown away.

@@ -1,0 +1,5 @@
+verify the following informal specification for LCP.
+
+Input:  an integer array a, and two indices x and y into this array
+Output: length of the longest common prefix of the subarrays of a
+        starting at x and y respectively.

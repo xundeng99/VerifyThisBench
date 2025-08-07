@@ -1,0 +1,1 @@
+5. Verify that shearsort and alternative-shearsort satisfy the same specification.

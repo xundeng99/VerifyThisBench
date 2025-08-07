@@ -1,0 +1,4 @@
+8. Assuming NT ≤ LEN, show that in any execution of P',
+a. at the final state, the queue is empty: Tail=Head and all entries are null
+b. each call to enqueue returns true
+c. the set of values returned by dequeue is exactly { 0, ..., NT-1 }.

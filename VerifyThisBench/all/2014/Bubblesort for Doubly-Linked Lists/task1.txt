@@ -1,0 +1,5 @@
+Verify the program w.r.t. this informal specification. Should you find
+bugs, please fix them and proceed to verify. If your tool does not
+support C, we ask you to reimplement the core data
+structure/functionality in the language of your choice. Please try to
+stay as faitful to the original code as possible (but see below). 

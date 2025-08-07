@@ -1,0 +1,19 @@
+In-place reversal of a singly-linked list is a classical algorithm. It is efficient (constant space and linear time) and straightforward to implement in any mainstream programming language. Here is a C implementation: struct Cell { int value; struct Cell *next; };
+struct Cell *list_reversal(struct Cell *l) {
+struct Cell *r = NULL;
+while (l != NULL) {
+struct Cell *tmp = l;
+l = l->next;
+tmp->next = r;
+r = tmp;
+}
+return r;
+}
+List reversal has been widely studied, notably in the context of program verification. In particular, it is the
+archetypal case study in Separation Logic, and the very first example in Reynolds’s landmark paper [LICS 2002].
+It is clear that the code above successfully terminates on a NULL-terminated list. Perhaps less well-known is the
+fact that it also successfully terminates on any infinite list that loops at some point, i.e., a lasso-shaped list with
+an initial segment (of any length ≥ 0) and then a cycle (of any length ≥ 1). When applied to a list like this, list
+reversal reverses the cycle and leaves the initial segment unchanged (by reversing it twice).
+If the memory is finite, any list is either NULL-terminated or loops at some point, and thus list reversal always
+terminates.

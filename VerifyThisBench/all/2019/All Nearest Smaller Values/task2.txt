@@ -1,0 +1,3 @@
+Verification tasks.
+1. Verify that, for each index i in the input sequence s, the left neighbor of i
+in s is smaller than i, that is left[i] < i.

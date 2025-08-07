@@ -1,0 +1,1 @@
+(c) Verify that your implementation is memory-safe / crash free: in particular, that all array accesses performed are guaranteed to be within bounds.

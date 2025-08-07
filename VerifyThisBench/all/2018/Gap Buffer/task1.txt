@@ -1,0 +1,31 @@
+Implementation task. Implement the following four operations in the language of your tool: Procedures left() and right() move the cursor by one character; insert() places a character at the
+beginning of the gap a[l]; delete() removes the character at a[l] from the range of text.
+procedure left()
+if l != 0 then
+l := l - 1
+r := r - 1
+a[r] := a[l]
+end-if
+end-procedure
+procedure right()
+// your task: similar to left()
+// but pay attention to the
+// order of statements
+end-procedure
+
+procedure insert(x: char)
+if l == r then
+// see extended task
+grow()
+end-if
+a[l] := x
+l := l + 1
+end-procedure
+procedure delete()
+if l != 0 then
+l := l - 1
+end-if
+end-procedure
+
+
+

@@ -1,0 +1,23 @@
+The maximum-sum subarray problem was first surveyed by Bentley in his “Programming Pearls”
+column of CACM in 1984. The solution returns the sum of a contiguous subarray within a onedimensional array of numbers which has the largest sum.
+In the two-dimensional case, the task is to find a submatrix such that the sum of its elements is
+maximized. This problem is widely used in applications such as pattern recognition, image
+processing, biological sequence analysis and data mining.
+One-dimensional Case:
+In the array [-2, -3, 4, -1, -2, 1, 5, -3] the maximum-sum subarray is [4,-1,-2, 1, 5] with a sum of 7
+(4 + (-1) + (-2) + 1 + 5 = 7). A brute force solution checks all subarrays (which are quadratically
+many), but the problem is solvable in linear-time using Kadane’s algorithm.
+Kadane’s Algorithm for a one-dimensional array is given below as an implementation in C:
+int maxSubArraySum(int a[], int size)
+{
+ int max_so_far = 0, max_ending_here = 0;
+ for (int i = 0; i < size; i++)
+ {
+ max_ending_here = max_ending_here + a[i];
+ if (max_ending_here < 0)
+ max_ending_here = 0;
+ else if (max_so_far < max_ending_here)
+ max_so_far = max_ending_here;
+ }
+ return max_so_far;
+}

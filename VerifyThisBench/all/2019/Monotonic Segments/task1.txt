@@ -1,0 +1,6 @@
+Implementation task. Implement the algorithm shown above to compute
+monotonic cutpoints of an input sequence. Choose any representation of input
+sequence and cutpoints sequence that is manageable using your programming
+language of choice: arrays, mathematical sequences, dynamic lists, . . . . If you
+are using a functional programming language, you can use recursion instead
+of looping to implement the general idea behind the algorithm.

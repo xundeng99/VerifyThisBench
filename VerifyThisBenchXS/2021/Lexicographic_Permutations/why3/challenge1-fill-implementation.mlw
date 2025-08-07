@@ -1,0 +1,187 @@
+
+(**
+{1 VerifyThis @ ETAPS 2021 competition
+   Challenge 1: Lexicographic Permutations}
+   See https://www.pm.inf.ethz.ch/research/verifythis.html
+
+   Authors:
+   - Jean-Christophe Filliâtre (CNRS)
+   - Andrei Paskevich (Univ. Paris-Saclay)
+
+   Summary:
+
+   - all tasks verified
+
+   - only one change in the code, due to the absence of do/while loop in Why3
+
+   - main idea for proving termination: show that the set of all permutations
+     is finite, by building a finite over-approximation of that set
+     (see function `all_permutations` below)
+
+*)
+
+use int.Int
+use import array.Array as A
+use import seq.Seq as S
+use int.NumOf as N
+
+(*** SPECIFICATION STARTS HERE ********************************************)
+
+type elt = int
+
+type permutation = seq elt
+
+(* lexicographic order on permutations *)
+predicate lt (p q: permutation) =
+  length p = length q > 0 /\
+  exists i. 0 <= i < length p /\
+    (forall j. 0 <= j < i -> p[j] = q[j]) /\
+    p[i] < q[i]
+
+(* lt is a total order *)
+
+let lemma lt_trans (p q r: permutation)
+  requires { lt p q } requires { lt q r } ensures { lt p r }
+= TODO
+
+let lemma lt_asym (p q: permutation)
+  requires { lt p q } requires { lt q p } ensures { false }
+= TODO
+
+let lemma lt_total (p q: permutation) : bool
+  requires { length p = length q }
+  ensures  { if result then lt p q else p = q \/ lt q p }
+= TODO
+
+(* number of occurrences in a (sub-)sequence *)
+
+function iseq (x: 'a) (s: seq 'a) : int->bool =
+  fun i -> s[i] = x
+
+function occ (x: 'a) (s: seq 'a) (l u: int) : int =
+  N.numof (iseq x s) l u
+
+function occ_all (x: 'a) (s: seq 'a) : int =
+  occ x s 0 (length s)
+
+predicate is_permutation_of (p a: seq elt) =
+  length p = length a /\
+  forall x. occ_all x p = occ_all x a
+
+(*** SPECIFICATION STOPS HERE **********************************************)
+(*** beyond this point, the only thing you need to read are the contracts
+     for functions `next` and `permut` *)
+
+predicate descending (s: seq elt) (lo hi: int)
+= 0 <= lo <= hi <= length s /\
+  forall i j. lo <= i <= j < hi -> s[i] >= s[j]
+
+predicate ascending (s: seq elt) (lo hi: int)
+= 0 <= lo <= hi <= length s /\
+  forall i j. lo <= i <= j < hi -> s[i] <= s[j]
+
+let function to_seq (a: array elt) : (s: seq elt)
+  ensures { length s = A.length a }
+  ensures { forall i. 0 <= i < length s -> s[i] = A.(a[i]) }
+= TODO
+
+lemma is_permutation_of_refl:
+  forall p. is_permutation_of p p
+lemma is_permutation_of_sym :
+  forall p q. is_permutation_of p q -> is_permutation_of q p
+lemma is_permutation_of_tran:
+  forall p q r. is_permutation_of p q -> is_permutation_of q r ->
+                is_permutation_of p r
+
+let lemma occ_id (s1 s2: seq elt) (l u: int)
+  requires { 0 <= l <= u <= length s1 = length s2 }
+  requires { forall i. l <= i < u -> s1[i] = s2[i] }
+  ensures  { forall x. occ x s1 l u = occ x s2 l u }
+= TODO
+
+let lemma occ_split (s: seq elt) (l mid u: int)
+  requires { 0 <= l <= mid <= u <= length s }
+  ensures  { forall x. occ x s l u = occ x s l mid + occ x s mid u }
+= TODO
+
+let lemma occ_at (s: seq elt) (l i u: int)
+  requires { 0 <= l <= i < u <= length s }
+  ensures  { forall x. occ x s l u =
+               occ x s l i + (if x = s[i] then 1 else 0) + occ x s (i+1) u }
+= TODO
+
+let lemma occ_none (v: elt) (s: seq elt) (l u: int)
+  requires { 0 <= l <= u <= length s }
+  requires { forall k. l <= k < u -> s[k] <> v }
+  ensures  { occ v s l u = 0 }
+= TODO
+
+let lemma descending_is_last (s p: seq elt)
+  requires { descending s 0 (length s) }
+  requires { is_permutation_of p s }
+  ensures  { not (lt s p) }
+= TODO
+
+let lemma ascending_is_first (s p: seq elt)
+  requires { ascending s 0 (length s) }
+  requires { is_permutation_of p s }
+  ensures  { not (lt p s) }
+= TODO
+
+let swap (a: array elt) (i j: int)
+  requires  { 0 <= i < A.length a }
+  requires  { 0 <= j < A.length a }
+  ensures   { A.(a[i] = old a[j]) }
+  ensures   { A.(a[j] = old a[i]) }
+  ensures   { forall k. 0 <= k < A.length a ->
+                k <> i -> k <> j -> A.(a[k] = old a[k]) }
+  ensures   { is_permutation_of (to_seq a) (to_seq (old a)) }
+= TODO
+
+let next (ghost a0: seq elt) (a: array elt) : bool
+  (* TASK 1 enforced by Why3 *)
+  (* TASK 2 ensured by absence of `diverges` clause *)
+  requires { A.length a = length a0 }
+  requires { is_permutation_of (to_seq a) a0 }
+  (* TASK 3 *)
+  ensures  { is_permutation_of (to_seq a) a0 }
+  (* TASK 4 *)
+  ensures  { not result -> forall i. 0 <= i < A.length a -> A.(a[i] = old a[i]) }
+  ensures  { not result -> forall p. is_permutation_of p a0 ->
+                            not (lt (to_seq a) p) }
+  (* TASK 5 *)
+  ensures  { result -> lt (to_seq (old a)) (to_seq a) }
+  ensures  { result -> forall p. is_permutation_of p a0 ->
+                         not (lt (to_seq (old a)) p /\ lt p (to_seq a)) }
+= TODO
+
+val sort (a: array elt) : unit
+  writes  { a }
+  ensures { forall i j. 0 <= i <= j < A.length a -> A.(a[i] <= a[j]) }
+  ensures { is_permutation_of (to_seq a) (to_seq (old a)) }
+(* NOTE we could provide an implementation here,
+        but this was not part of the tasks *)
+
+use import set.Fset as FS
+
+(* this is actually an over-approximation of the sets of all permutations
+   of s, namely the set of all sequences of length |s| made with elements
+   of s *)
+let ghost function
+  all_permutations (s: permutation) : (all: fset permutation)
+  ensures { forall p. is_permutation_of p s -> mem p all }
+= TODO
+
+let permut (a: array elt) : seq permutation
+  (* TASK 6 enforced by Why3 *)
+  (* TASK 7 ensured by absence of `diverges` clause *)
+  (* TASKS 8,9,10 *)
+  ensures { (* result only contains permutation of a *)
+            forall i. 0 <= i < length result ->
+              is_permutation_of result[i] (to_seq (old a)) }
+  ensures { (* result is sorted in strict ascending order *)
+            forall i j. 0 <= i < j < length result -> lt result[i] result[j] }
+  ensures { (* result contains any permutation of a *)
+            forall p. is_permutation_of p (to_seq (old a)) ->
+              exists i. 0 <= i < length result /\ result[i] = p }
+= TODO

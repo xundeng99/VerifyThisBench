@@ -1,0 +1,6 @@
+The verification challenges related to the permut procedure are:
+6. Verify that permut is memory safe.
+7. Verify that permut terminates for every input.
+8. Verify that any permutation reported by permut is unique.
+9. Verify that permut(A) reports all permutations of A.
+10. Verify that permut outputs all permututations in lexicographic order.

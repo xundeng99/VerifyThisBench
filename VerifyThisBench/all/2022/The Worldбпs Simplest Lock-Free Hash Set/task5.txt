@@ -1,0 +1,2 @@
+Verification tasks. Verify the following properties:
+4. termination

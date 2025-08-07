@@ -1,0 +1,3 @@
+Implementation task. Implement the algorithm for the construction of the
+Cartesian tree. You can implement the tree structure as you prefer, using for
+example a recursive data-type, a pointer based structure, or a bounded structure inside an array depending on your input language.

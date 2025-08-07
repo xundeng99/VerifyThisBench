@@ -1,0 +1,17 @@
+Specify and verify the following behaviour of this parallel GCD algorithm:
+Input: two positive integers a and b
+Output: a positive number that is the greatest common divisor of a and b
+Feel free to add synchronisation where appropriate, but try to avoid
+blocking of the parallel threads.
+
+Sequentialization
+-----------------
+If your tool does not support reasoning about parallel threads, you may
+verify the following pseudocode algorithm:
+WHILE a != b DO
+CHOOSE(
+IF a > b THEN a := a - b ELSE SKIP FI,
+IF b > a THEN b := b - a ELSE SKIP FI
+)
+OD;
+OUTPUT a

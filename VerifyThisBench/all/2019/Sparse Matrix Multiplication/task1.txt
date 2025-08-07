@@ -1,0 +1,3 @@
+Implementation tasks.
+1. Implement the algorithm to multiply a vector with a sparse matrix in
+your language of choice.

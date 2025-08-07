@@ -1,0 +1,43 @@
+Given a sequence s, s = s[0]s[1] . . . s[n − 1] n ≥ 0, of elements over a totally sorted domain (for example, the integers), we call
+monotonic cutpoints any indexes that cut s into segments that are monotonic:
+each segment’s elements are all increasing or all decreasing. Here are some
+examples of sequences with monotonic cutpoints:
+SEQUENCE s MONOTONIC CUTPOINTS MONOTONIC SEGMENTS
+1 2 3 4 5 7   0 6   1 2 3 4 5 7
+1 4 7 3 3 5 9   0 3 5 7   1 4 7 | 3 3 | 5 9
+6 3 4 2 5 3 7   0 2 4 6 7   6 3 | 4 2 | 5 3 | 7
+Formally, given a sequence s as above, we call monotonic cutpoints any
+integer sequence
+cut = c0 c1 . . . cm−1
+such that the following four properties hold: 
+non-empty: m > 0
+begin-to-end: c0 = 0 and cm−1 = n
+within bounds: for every element ck ∈ cut: 0 ≤ ck ≤ n
+monotonic: for every pair of consecutive elements ck
+, ck+1 ∈ cut, the segment
+s[ck..ck+1) = s[ck]s[ck + 1] . . . s[ck+1 − 1] of s, which starts at index ck
+included and ends at index ck+1 excluded, is
+monotonic, that is:
+1. either s[ck] < s[ck + 1] < · · · < s[ck+1 − 1]
+2. or s[ck] ≥ s[ck + 1] ≥ · · · ≥ s[ck+1 − 1]
+(If you prefer, you can change the definition of monotonic so that segments of equal values can be indifferently included in increasing or in
+decreasing segments. If you choose to do so, you may have to change the
+algorithm given below to match your definition of monotonic segment.)
+In this challenge we focus on maximal monotonic cutpoints, that is such that,
+if we extend any segment by one element, the extended segment is not monotonic anymore.
+Given a sequence s, for example stored in an array, maximal monotonic
+cutpoints can be computed by scanning s once while storing every index that
+corresponds to a change in monotonicity (from increasing to decreasing, or vice
+versa), as shown in the following algorithm.
+cut := [0] # singleton sequence with element 0
+x, y := 0, 1
+while y < n: # n is the length of sequence s
+increasing := s[x] < s[y] # currently in increasing segment?
+while y < n and (s[y-1] < s[y]) == increasing:
+y := y + 1
+cut.extend(y) # extend cut by adding y to its end
+x := y
+y := x + 1
+if x < n:
+cut.extend(n)
+

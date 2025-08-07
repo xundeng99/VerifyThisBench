@@ -1,0 +1,3 @@
+Verification tasks
+The verification tasks for shearsort are:
+1. Verify that shearsort terminates, and is memory safe.

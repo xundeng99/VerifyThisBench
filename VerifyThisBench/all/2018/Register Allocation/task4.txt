@@ -1,0 +1,1 @@
+3. Verify that No two interfering variables (w.r.t. the initial value of G) are assigned the same register.

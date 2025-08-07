@@ -1,0 +1,40 @@
+The maximum-sum subarray problem was first surveyed by Bentley in his “Programming Pearls”
+column of CACM in 1984. The solution returns the sum of a contiguous subarray within a onedimensional array of numbers which has the largest sum.
+In the two-dimensional case, the task is to find a submatrix such that the sum of its elements is
+maximized. This problem is widely used in applications such as pattern recognition, image
+processing, biological sequence analysis and data mining.
+Two-dimensional Case:
+For the given two-dimensional array
+ 0 -2 -7 0
+ 9 2 -6 2
+-4 1 -4 1
+-1 8 0 -2
+the maximum-sum submatrix is
+ 9 2
+-4 1
+-1 8 .
+To get an O(N³) algorithm, we create O(N²) one-dimensional subproblems by iterating over all
+possible contiguous sequences of row indices. We then apply Kadane's algorithm to each 1D
+subproblem, with the maximum-sum subarray amongst these returning the solution to the 2D
+problem.
+The subproblems are arrays which contain accumulated sums of contiguous rows. Dynamic
+programming can be used to obtain these efficiently.
+In the example above the contiguous sequences of row indices from which sums are formed
+are:
+[0], [0,1], [0,1,2], [0,1,2, 3], [1], [1,2], [1,2,3], [2], [2,3], [3].
+The arrays holding the accumulated sums are:
+[0] 0 -2 -7 0
+[0,1] 9 0 -13 2
+[0,1,2] 5 1 -17 3
+[0,1,2, 3] 4 9 -17 1
+[1] 9 2 -6 2
+[1,2] 5 3 -10 3
+[1,2,3] 4 11 -10 1
+[2] -4 1 -4 1
+[2,3] -5 9 -4 -1
+[3] -1 8 0 -2
+We apply Kadane’s algorithm to each of these arrays, keeping the maximum sum found across
+all arrays. For example, above, the maximum sum of 15 is found in row sequence [1,2,3].
+The maximum-sum submatrix column bounds (0 and 1 here) are obtained from the bounds of
+the maximum-sum subarray. The row bounds are obtained from the row sequence yielding the
+maximum sum (1-3 in the example).

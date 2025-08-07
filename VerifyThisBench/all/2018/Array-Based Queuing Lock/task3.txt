@@ -1,0 +1,1 @@
+Verification task 3. Verify the liveness under a fair scheduler, namely that each thread requesting the lock will eventually acquire it.

@@ -1,0 +1,29 @@
+Longest Common Prefix (LCP) - 45 minutes
+
+VERIFICATION TASK
+-----------------
+
+Longest Common Prefix (LCP) is an algorithm used for text querying. In
+the following, we model text as an integer array. You may use other
+representations (e.g., Java Strings), if your system supports them.
+
+LCP can be implemented with the pseudocode given below. Formalize and
+
+
+Pseudocode:
+
+    int lcp(int[] a, int x, int y) {
+        int l = 0;
+        while (x+l<a.length && y+l<a.length && a[x+l]==a[y+l]) {
+            l++;
+        }
+        return l;
+    }
+
+
+
+
+
+
+
+

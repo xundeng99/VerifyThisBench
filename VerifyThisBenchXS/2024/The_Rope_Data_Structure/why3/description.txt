@@ -1,0 +1,19 @@
+A Rope is a special type of binary tree that is used to represent a string. Insertions and deletions can
+be performed efficiently on Ropes, making them preferable to standard (e.g. C-style) strings when these
+operations occur frequently.
+The data for the string represented by a Rope is stored in the leaf nodes: each leaf node contains a
+(standard) string segment, which makes up part of the represented string. Intuitively, the string represented
+by a Rope t, denoted repr (t), is defined recursively as follows:
+1. If t is a leaf node, then repr (t) is the segment stored at that node.
+2. If t has only a single child c, then repr (t) = repr (c)
+3. Otherwise, repr (t) = repr (l) ++ repr (r ).
+Each node in a Rope also stores an integer weight. The weight of a leaf node is equal to the length
+of the segment it contains. The weight of a non-leaf node is equal to the length of the string represented
+(in the repr (.) sense above) by its left child. Storing weights enables several operations on the Rope to be
+performed more efficiently: for example, it is possible to compute the length of the represented string via a
+single traversal down the right children of the tree. Fig. 1 visualises a Rope representing the string “Hello
+my name is Simon”. This example is taken from the Wikipedia page on Ropes (https://en.wikipedia.org/wiki/Rope_(data_structure)
+(we have used “ ” to represent spaces in the figure illustration).
+For this challenge, you will write a Rope implementation and prove the correctness of various operations
+on Ropes with respect to the strings they represent. In your solutions, you can represent characters and
+strings of characters in any reasonable way (e.g. using integers to represent characters).

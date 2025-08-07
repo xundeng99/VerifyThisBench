@@ -1,0 +1,3 @@
+5. Assuming NT > LEN, show that in any execution of P, at the final state,
+a. the queue is full (Tail-Head=LEN)
+b. the data in the queue is some permutation of a subset of size LEN of 0, ..., NT-1.

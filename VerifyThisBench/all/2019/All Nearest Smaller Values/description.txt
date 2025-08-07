@@ -1,0 +1,34 @@
+For each position in a sequence of values, we define the nearest smaller value
+to the left, or left neighbor, as the last position among the previous positions
+that contains a smaller value. More precisely, for each position x in an input
+sequence s, we define the left neighbor of x in s to be a position y such that:
+• y < x,
+• the element stored at position y in s, written s[y] is smaller than the element stored at position x in s,
+• there are no other values smaller than s[x] between y and x.
+There are positions which do not have a left neighbor (the first element, or the
+smallest element in the sequence for example).
+We consider here an algorithm which constructs the sequence of the left
+neighbors of all the elements of a sequence. It works using a stack. At the beginning, the stack is empty. Then, for each position x in the sequence, pop from
+the stack all the positions until a position y if found such that s[y] is smaller
+than s[x]. If such a position exists, it is the left neighbor of x, otherwise, x does
+not have a left neighbor. Then, push x on the stack and go to the next position.
+Here is the algorithm in pseudo-code:
+for every position x in s do
+while not my_stack.is_empty && s[my_stack.peek] >= s[y] do
+my_stack.pop
+done
+if my_stack.is_empty
+left[i] <- 0
+else
+left[i] <- my_stack.peek
+fi
+my_stack.push (x)
+done
+Note that the algorithm above assumes that indexes start from 1, and hence it
+uses 0 to denote that a position has no left neighbor.
+As an example, let us consider the sequence s = [4, 7, 8, 1, 2, 3, 9, 5, 6]. Here
+is the sequence of the left neighbors of s using indexes that start from 1: left =
+[0, 1, 2, 0, 4, 5, 6, 6, 8]. The left neighbor of the first element of s is 0 (denoting no
+valid index), since, as it is the first element of the list, it has no smaller element
+at its left. It is the same for the fourth element (1), as it is the minimum of the
+list.

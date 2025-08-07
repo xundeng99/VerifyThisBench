@@ -1,0 +1,6 @@
+Verification tasks. You should verify that at the end, count[50] will contain the right number.
+Hint: Since the algorithm works by enumerating the valid colorings, we expect you to give a nice
+specification of a valid coloring and to prove the following properties:
+1. Each coloring counted by the algorithm is valid.
+2. No coloring is counted twice.
+3. No valid coloring is missed.

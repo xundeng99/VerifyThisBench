@@ -1,0 +1,8 @@
+A gap buffer is a data structure for the implementation of text editors, which can efficiently move the
+cursor, as well add and delete characters.
+The idea is simple: the editor’s content is represented as a character array a of length n, which
+has a gap of unused entries a[l],...,a[r −1], with respect to two indices l ≤ r. The data it represents
+is composed as a[0],...,a[l −1],a[r],...,a[n−1].
+The current cursor position is at the left index l, and if we type a character, it is written to a[l]
+and l is increased. When the gap becomes empty, the array is enlarged and the data from r is shifted
+to the right.

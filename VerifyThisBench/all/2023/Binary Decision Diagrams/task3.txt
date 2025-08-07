@@ -1,0 +1,2 @@
+3. Verify the operations are correct: a. Applying and(a, b) should produce a node equivalent to the conjunction of the formulas represented by a and b
+b. Applying not(a) should produce a node equivalent to the negation of the formulas represented by a

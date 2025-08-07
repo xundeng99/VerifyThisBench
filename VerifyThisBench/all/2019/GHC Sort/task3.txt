@@ -1,0 +1,2 @@
+2.Verify that the implementation of merge returns a sequence merged that is
+sorted.

@@ -1,0 +1,8 @@
+1. Specify and verify the upsweep method. You can begin with a slightly
+   simpler requirement that the last array cell contains the sum of the
+   whole array in the post-state.
+2. Verify both upsweep AND downsweep - prove that the array cells
+   contain appropriate prefix sums in the post-state.
+
+If a general specification is not possible with your tool, assume the
+length of array is 8. 

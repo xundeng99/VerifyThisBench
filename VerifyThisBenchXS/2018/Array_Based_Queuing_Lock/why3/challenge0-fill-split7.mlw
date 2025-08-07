@@ -1,0 +1,165 @@
+(**
+
+{1 VerifyThis @ ETAPS 2018 competition
+   Challenge 3: Array-Based Queuing Lock}
+
+Author: Raphaël Rieu-Helft (LRI, Université Paris Sud)
+*)
+
+module ABQL
+
+use import array.Array
+use import int.Int
+use import ref.Refint
+use import int.EuclideanDivision
+use import option.Option
+
+val constant n : int
+axiom N_val: 2 <= n
+
+val constant k : int
+axiom K_val: 2 <= k
+
+type tick =
+  { b : int;                         (* ticket number *)
+    ghost v : int;                   (* unbounded ticket number *) }
+  invariant { 0 <= v /\ 0 <= b < k*n /\ b = mod v (k*n) }
+  by { b = 0; v = 0 }
+
+let fetch_and_add (r:ref tick)
+  ensures { !r.v = old !r.v + 1 }
+  ensures { result = old !r }
+=
+  let res = !r in
+  assert { mod (res.b + 1) (k*n) = mod (res.v + 1) (k*n)
+           by let a = div res.v (k*n) in
+              res.v = (k*n) * a + mod res.v (k*n)
+           so mod res.v (k*n) = res.b
+           so mod (res.v+1) (k*n) = mod ((k*n) * a + (res.b + 1)) (k*n)
+              = mod (res.b+1) (k*n) };
+  r := { v = res.v + 1; b = mod (res.b + 1) (k*n) };
+  res
+
+predicate lt (tick1 tick2: tick) = tick1.v < tick2.v
+
+use relations.Transitive
+use import list.List
+use import list.HdTl
+use import list.Append
+clone import list.Sorted with type t = tick, predicate le = lt, lemma Transitive.Trans
+
+inductive consecutive (l:list tick) =
+  | Consecutive_Nil : consecutive Nil
+  | Consecutive_One : forall t. consecutive (Cons t Nil)
+  | Consecutive_Two : forall t1 t2 l.
+                      t2.v = t1.v + 1 -> consecutive (Cons t2 l)
+                                      -> consecutive (Cons t1 (Cons t2 l))
+
+function last (l:list tick) : option tick
+= match l with
+  | Nil -> None
+  | Cons x Nil -> Some x
+  | Cons _ l -> last l
+  end
+
+let rec lemma last_push (l: list tick) (x:tick)
+  ensures { last (l ++ (Cons x Nil)) = Some x }
+  variant { l }
+= match l with
+  | Nil -> ()
+  | Cons _ l -> last_push l x
+  end
+
+let rec lemma consecutive_last_push (l: list tick) (x:tick)
+  requires { consecutive l }
+  requires { match last l with
+             | None -> true
+             | Some y -> x.v = y.v + 1 end }
+  ensures  { consecutive (l ++ (Cons x Nil)) }
+  variant  { l }
+= match l with
+  | Nil -> ()
+  | Cons _ l -> consecutive_last_push l x
+  end
+
+lemma hd_push: forall l,x:tick. hd l = None \/ hd (l ++ (Cons x Nil)) = hd l
+
+let rec lemma consecutive_implies_sorted (l:list tick)
+  requires { consecutive l }
+  ensures  { sorted l }
+  variant  { l }
+= match l with
+  | Nil -> ()
+  | Cons _ t -> consecutive_implies_sorted t
+  end
+
+(*
+  we associate a program counter to each thread
+
+  I: idle
+  function acquire
+    A1: var my_ticket = fetch_and_add (next,1)
+    A2: while not pass[my_ticket] do () done;
+    A3: return my_ticket
+
+  W: working (with lock)
+  function release(my_ticket)
+    R1: pass[my_ticket] = false
+    R2: pass[my_ticket+1 mod N] = true
+*)
+
+type pc = A1 | A2 | A3 | R1 | R2 | I | W
+
+predicate has_ticket (pc:pc) =
+  match pc with
+    | A1 | I -> false
+    | _ -> true
+  end
+
+predicate has_lock (pc:pc) =
+  match pc with
+    | A3 | W | R1 | R2 -> true
+    | _ -> false
+  end
+
+type nondet_source
+type rng = abstract { mutable source : nondet_source }
+val random : rng
+
+val scheduler () : int
+  ensures { 0 <= result < n }
+  writes  { random }
+
+use import array.NumOfEq
+use import queue.Queue
+use import list.NumOcc
+use import list.Mem
+
+
+let lemma numof_equiv (a1 a2: array 'a) (v:'a) (l u: int)
+  requires { forall i. l <= i < u -> a1[i]=v <-> a2[i]=v }
+  ensures  { numof a1 v l u = numof a2 v l u }
+= ()
+
+let lemma numof_add (a: array 'a) (v:'a) (l u: int) (i:int)
+  requires { l <= i < u }
+  requires { a[i] <> v }
+  ensures  { numof a[i <- v] v l u = numof a v l u + 1 }
+= assert { numof a[i<-v] v l i = numof a v l i };
+  assert { numof a[i<-v] v i (i+1) = 1 + numof a v i (i+1) };
+  assert { numof a[i<-v] v (i+1) u = numof a v (i+1) u }
+
+lemma mod_diff:
+  forall a b c:int. c > 0 -> mod a c = mod b c -> mod (a-b) c = 0
+         by a = c * (div a c) + mod a c
+         so b = c * (div b c) + mod b c
+         so a - b = c * (div a c - div b c) + 0
+         so mod (a-b) c = mod 0 c = 0
+
+let main () : unit
+  diverges
+= TODO
+
+
+
+end

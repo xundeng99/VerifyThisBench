@@ -1,0 +1,2 @@
+Do the specification annotations in the program coherently describe the verification need of the given problem, such as the prerequisites (requires) and the post-conditions (ensures)?
+State your reasoning and put your final answer in /answer{}, either /answer{yes} or /answer{no}.

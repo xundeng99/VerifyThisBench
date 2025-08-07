@@ -1,0 +1,4 @@
+Implementation task. Implement the downsample method. The pseudocode
+uses real numbers but participants may simplify and use integers if their tool
+does not have adequate support for real numbers. Other potential simplifications include requiring that the least point is at (0, 0, 0) and fixed parameters
+for x_max, y_max and z_max.

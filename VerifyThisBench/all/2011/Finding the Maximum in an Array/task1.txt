@@ -1,0 +1,2 @@
+Verify that the index returned by the method max() given points to an element maximal
+in the array

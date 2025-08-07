@@ -1,0 +1,56 @@
+Description
+For this challenge we look at shearsort, which is a parallelisable algorithm for sorting
+an n × n integer matrix in a snake-like order. With snake-like we mean that, after
+termination of shearsort, the rows of the given input matrix have been sorted in
+alternating direction.
+The next page shows a pseudo-code implementation of shearsort. It takes an integer
+matrix M as input, which is assumed to be of size n × n (with n a positive integer).
+Then the following two steps are repeated ceiling(log2
+(n)) + 1 times:
+1. Sort all rows of M in an alternating manner.
+2. Sort all columns of M in ascending order.
+The row and column sorts in every round can be performed in parallel, as they
+operate on disjoint memory. The implementations of sort-row and sort-column are
+left abstract, but could be chosen to be any sorting function.
+
+Furthermore, an alternative implementation of shearsort is given, that uses a matrix transpose operation instead of sort-column. This version should be equivalent
+to shearsort, although less efficient. Feel free to perform the verification tasks using alternative-shearsort instead, if that is more convenient.
+Moreover, in case your verifier does not support reasoning about concurrency, feel
+free to turn all parallel for-loops into sequential ones.
+alternative-shearsort instead, if that is more convenient.
+Moreover, in case your verifier does not support reasoning about concurrency, feel
+free to turn all parallel for-loops into sequential ones.
+1 // Sorts the row-th row of M in ascending order if ascending is true,
+2 // or in descending order if ascending is false.
+3 void sort-row(int[ ][ ] M, int row, bool ascending) {
+4 . . .
+5
+6 // Sorts the column-th column of M in ascending order.
+7 void sort-column(int[ ][ ] M, int column) {
+8 . . .
+9
+10 // Sorts M in snake-like order, assuming that M is an n × n matrix.
+11 void shearsort(int n, int[ ][ ] M) {
+12 repeat ceiling(log2
+(n)) + 1 times {
+13 for int tid = 0 . . . n do in parallel {
+14 sort-row(M, tid, tid % 2 = 0);
+15 }
+16 for int tid = 0 . . . n do in parallel {
+17 sort-column(M, tid);
+18 }
+19 }
+20
+21 // An alternative version of shearsort, that only uses sort-row.
+22 void alternative-shearsort(int n, int[ ][ ] M) {
+23 repeat ceiling(log2
+(n)) + 1 times {
+24 for int tid = 0 . . . n do in parallel {
+25 sort-row(M, tid, tid % 2 = 0);
+26 }
+27 transpose(M);
+28 for int tid = 0 . . . n do in parallel {
+29 sort-row(M, tid, true);
+30 }
+31 transpose(M);
+32 }

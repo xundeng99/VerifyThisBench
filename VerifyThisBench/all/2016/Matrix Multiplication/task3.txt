@@ -1,0 +1,10 @@
+3. [Optional, if time permits] In the literature, there exist many proposals for more efficient
+matrix multiplication algorithms. Strassen’s algorithm was one of the first. The key idea
+of the algorithm is to use a recurisive algorithm that reduces the number of
+multiplications on submatrices (from 8 to 7), see
+https://en.wikipedia.org/wiki/Strassen_algorithm for an explanation. A relatively clean
+Java implementation (and Python and C++) can be found here:
+https://martin-thoma.com/strassen-algorithm-in-python-java-cpp/. Prove that the naive
+algorithm above has the same behaviour as Strassen’s algorithm. Proving it for a
+restricted case, like a 2x2 matrix should be straightforward, the challenge is to prove it
+for arbitrary matrices with size 2^n.

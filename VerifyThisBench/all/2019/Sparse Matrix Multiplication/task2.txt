@@ -1,0 +1,8 @@
+2. We want to execute this algorithm in parallel, so that each computation
+is done by a different process/thread/task. Add the necessary synchronization steps in your sequential program, using the synchronisation feature of your choice (lock, atomic block, . . . ).
+You can choose how to allocate work to processes. For example:
+• each process computes exactly one iteration of the for loop,
+• there is a fixed number of processes, each taking an equal share of
+the total number of for loop iterations,
+• work is assigned to processes dynamically (for example using a work
+stealing algorithm).

@@ -1,0 +1,2 @@
+Verification Tasks
+1. Prove that this algorithm converts an input list into a tree.

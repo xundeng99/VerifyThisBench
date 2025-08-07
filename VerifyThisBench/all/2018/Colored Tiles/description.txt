@@ -1,0 +1,17 @@
+This problem is based on Project Euler problem #114.
+Alice and Bob are decorating their kitchen, and they want to add a single row of fifty tiles on the
+edge of the kitchen counter. Tiles can be either red or black, and for aesthetic reasons, Alice and Bob
+insist that red tiles come by blocks of at least three consecutive tiles. Before starting, they wish to
+know how many ways there are of doing this. They come up with the following algorithm:
+var count[51] // count[i] is the number of valid rows of size i
+count[0] := 1 // []
+count[1] := 1 // [B] - cannot have a single red tile
+count[2] := 1 // [BB] - cannot have one or two red tiles
+count[3] := 2 // [BBB] or [RRR]
+for n = 4 to 50 do
+count[n] := count[n-1] // either the row starts with a black tile
+for k = 3 to n-1 do // or it starts with a block of k red tiles
+count[n] := count[n] + count[n-k-1] // followed by a black one
+end-for
+count[n] := count[n]+1 // or the entire row is red
+end-for

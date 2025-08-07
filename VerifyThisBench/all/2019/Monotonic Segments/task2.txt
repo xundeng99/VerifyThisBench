@@ -1,0 +1,2 @@
+Verification tasks.
+1. Verify that the output sequence satisfies properties non-empty, begin-toend, and within bounds above.

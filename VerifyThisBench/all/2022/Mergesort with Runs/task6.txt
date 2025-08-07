@@ -1,0 +1,2 @@
+Verification tasks. Verify the following properties:
+5. msort sorts the input (permutation and sortedness)

@@ -1,0 +1,2 @@
+Verification tasks. Verify the following properties:
+6. if insert returns false, the table is full

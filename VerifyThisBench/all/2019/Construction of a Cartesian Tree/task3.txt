@@ -1,0 +1,2 @@
+2. Verify that the resulting tree has the heap property, that is, each non-root
+node contains a value larger than its parent.

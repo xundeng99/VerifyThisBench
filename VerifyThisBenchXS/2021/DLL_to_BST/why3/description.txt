@@ -1,0 +1,57 @@
+Description
+This challenge is to verify an in-place algorithm to convert a sorted doubly-linked list (DLL)
+into a balanced binary search tree (BST). The algorithm runs in linear time, and proceeds by
+first making a pass over the list to calculate its length, say n. It then recursively constructs
+a BST out of the first n/2 nodes, makes this the left subtree of the middle node, and then
+recursively constructs the right subtree using the remaining nodes.
+Assume that each node has 3 fields, data, prev, and next, and when constructing the BST,
+we use the prev field to link a node to its left child and the next field to link a node to its right
+child. The implementation is shown below:
+1 // Ref is the type of nodes used for both list and tree, and has these fields:
+2 field data: Int
+3 field prev: Ref // Also used as left subtree pointer
+4 field next: Ref // Also used as right subtree pointer
+5
+6 method size(head: Ref) returns (count: Int) {
+7 if (head != null) {
+8 count := size(head.next)
+9 count := count + 1
+10 } else {
+11 count := 0
+12 }
+13 }
+14
+15 method dll_to_bst(head: Ref) returns (root: Ref) {
+16 var n: Int
+17 var right: Ref
+18 n := size(head)
+19 root, right := dll_to_bst_rec(head, n)
+20 }
+21
+22 // Converts a sorted DLL into a balanced BST
+23 // head: Pointer to doubly linked list
+24 // n: number of nodes of list to convert to tree
+25 method dll_to_bst_rec(head: Ref, n: Int) returns (root: Ref, right: Ref) {
+26 if (n > 0) {
+27 // Recursively construct the left subtree
+28 var left: Ref
+29 left, root := dll_to_bst_rec(head, n/2)
+30 // [head, root) is a tree rooted at left, [root, ...] is a list
+31
+32 // Set pointer to left subtree
+33 root.prev := left
+34
+35 // Recursively construct the right subtree
+36 // size(right subtree) = n - size(left subtree) - 1 (for root)
+37 var temp: Ref
+38 temp, right := dll_to_bst_rec(root.next, n-n/2-1)
+39 // [head, root) is a tree rooted at left, [root.next, right) is tree at temp
+40
+41 // Set pointer to right subtree
+42 root.next := temp
+43 // [head, right) is a tree rooted at root
+44 } else {
+45 root := null
+46 right := head
+47 }
+48 }

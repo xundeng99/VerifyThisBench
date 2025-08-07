@@ -1,0 +1,3 @@
+3. Optional task (advanced): Strengthen the definition of monotonic cutpoints so that it requires maximal monotonic cutpoints, and prove that
+your algorithm implementation computes maximal cutpoints according
+to the strengthened definition.

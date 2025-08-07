@@ -1,0 +1,19 @@
+To a sequence of distinct numbers, we associate a unique Cartesian tree. It is a
+tree constructed so that:
+1. The tree contains exactly one node per element in the sequence.
+2. The elements are encountered in the order of the sequence when traversing the tree in-order, that is, using a symmetric traversal (first traverse
+the left subtree, then the node itself, and finally the right subtree).
+3. The tree has the heap property, that is, each node in the tree contains a
+value (not an index) bigger than its parent.
+There are several algorithms to construct a Cartesian tree in linear time from
+its input sequence. The one we consider here is based on the all nearest smaller
+values problem (part A of this challenge). Let’s consider a sequence of distinct
+numbers s. First, we construct the sequence of left neighbors for the elements
+of s using the algorithm described above. Then, we construct the sequence of
+right neighbors using the same algorithm, but starting from the end of the list.
+Then, for every position x in the sequence, the parent of x is either:
+• The left neighbor of x if x has no right neighbor.
+• The right neighbor of x if x has no left neighbor.
+• If x has both a left neighbor and a right neighbor, then it is the one which
+has the larger value.
+• If x has no neighbor, then it is the root.

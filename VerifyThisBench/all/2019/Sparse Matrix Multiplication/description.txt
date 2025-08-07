@@ -1,0 +1,21 @@
+We represent sparse matrices using the coordinate list (COO) format. In this
+format, the non-zero values of the matrix are stored in a sequence of triplets
+containing the row, the column, and the corresponding value. The sequence is
+sorted, first by row index and then by column index, for faster lookup. Here is
+an example. The matrix:
+0 0 1 0
+5 8 0 0
+0 0 0 0
+0 3 0 0
+is encoded into the following sequence (using row and column indexes that
+start from 1):
+[(1, 3, 1),(2, 1, 5),(2, 2, 8),(4, 2, 3)]
+We now consider an algorithm which computes the multiplication of a vector of values (encoded as a sequence) with a sparse matrix. It iterates over the
+values present inside the matrix, multiplies each of them by the appropriate
+element in the input vector, and stores the result at the appropriate position in
+the output vector. Here is the algorithm in pseudo-code, which multiplies a
+sparse matrix m with an input vector x and stores it in an output vector y:
+y <- (0, ..., 0)
+for every element (r, c, v) of m do
+y (c) <- y (c) + x (r) * v
+done

@@ -1,0 +1,2 @@
+Verification tasks. Verify the following properties:
+5. every key is contained in the table at most once

@@ -1,0 +1,1 @@
+2. Show that all executions of P terminate (i.e., all threads terminate).

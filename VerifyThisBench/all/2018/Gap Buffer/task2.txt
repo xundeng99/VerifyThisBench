@@ -1,0 +1,6 @@
+Verification task. Specify the intended behavior of the buffer in terms of a contiguous representation of the editor content. This can for example be based on strings, functional arrays, sequences, or
+lists. Verify that the gap buffer implementation satisfies this specification, and that every access to
+the array is within bounds.
+Hint: For this task you may assume that insert() has the precondition l < r and remove the call
+to grow(). Alternatively, assume a contract for grow() that ensures that this call does not change the
+abstract representation.

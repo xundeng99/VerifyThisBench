@@ -1,0 +1,4 @@
+Verification tasks. Verify the following properties:
+3. The output point cloud is smaller or equal to the input point cloud. For
+example:
+size(pd) <= size(p)

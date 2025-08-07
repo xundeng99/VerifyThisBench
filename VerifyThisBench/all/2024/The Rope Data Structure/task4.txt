@@ -1,0 +1,1 @@
+(d) Implement a function concat(left:Rope, right:Rope): Rope, that joins two Rope instances into one by allocating a new node and making the two parameters its children. Specify and prove that applying toStr to the result of a call to concat gives a String equal to toStr(left) ++ toStr(right)

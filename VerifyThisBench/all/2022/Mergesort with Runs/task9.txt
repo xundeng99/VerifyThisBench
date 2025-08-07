@@ -1,0 +1,2 @@
+Verification tasks. Verify the following properties:
+8. msort runs in O(n log n) time and O(n log n) space.

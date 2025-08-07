@@ -1,0 +1,9 @@
+Tasks. Prove that:
+1. the following invariant holds in all states:
+If n.sense is true for any node n then m.sense is true for all nodes m in the subtree
+rooted in n.
+2. for any call n.barrier(), if the call terminates then there was a state during the
+execution of the method where all nodes had the same version.
+Hint: The problem can be solved with a verifier for sequential programs by encoding it as a
+non-deterministic transition system that represents threads and their states explicitly in each
+state of the transition system.

@@ -1,0 +1,3 @@
+(k) Write a short textual comment labelled MODULARITY: explaining to what
+extent you are able to reuse parts of the code and verification effort/results
+between your different versions.

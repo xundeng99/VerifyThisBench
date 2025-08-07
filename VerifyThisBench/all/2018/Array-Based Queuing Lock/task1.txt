@@ -1,0 +1,3 @@
+Verification task 1. Verify the safety of ABQL under the given assumptions. Specifically, you should
+prove that no two threads can hold the lock at any given time.
+

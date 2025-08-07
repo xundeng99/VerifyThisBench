@@ -1,0 +1,5 @@
+Extended verification task. Implement the operation grow(), specify its behavior in a way that
+lets you verify insert() in a modular way (i.e. not by referring to the implementation of grow()),
+and verify that grow() satisfies this specification.
+Hint: You may assume that the allocation of the new buffer always succeeds. If your tool/language supports copying array ranges (such as System.arraycopy() in Java), consider using these
+primitives instead of the loops in the pseudo-code below.

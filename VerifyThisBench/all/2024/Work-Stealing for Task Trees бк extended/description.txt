@@ -1,0 +1,56 @@
+Work stealing is a popular efficient technique for performing load balancing in
+multicore computations. In traditional schemes, the work-stealing is receiverinitiated: workers that run out of work are responsible for stealing tasks. In
+a dual approach, called sender-initiated work-stealing, workers with tasks are
+responsible for actively sharing their tasks with workers that are out of work.
+In this challenge we investigate work-stealing in the context of a binary tree
+of tasks. Each task has at most two child subtasks and a task may be executed
+only after their parent task; the root task must be executed first, therefore. The
+order in which tasks can be executed is otherwise not restricted.
+Let P > 0 be the number of workers; each worker has a unique ID i in the
+range 0 to P−1. Each worker has a double-ended queue q[i] representing the
+tasks currently ready to execute and assigned to this worker; these start off
+empty, and the root task is then assigned to worker 0. Our algorithms are each
+built around the same key main function, shown in pseudo code below:typedef int task // tasks are represented by their IDs
+const int nTasks // number of tasks ( IDs 0 ,1 ,... , nTasks -1)
+const task NO_TASK = -1 // special code to denote ‘no child task ’
+const task ROOT_TASK = 0 // ID of the root task
+task subtask [ nTasks ][2] // maps task ID to child task IDs / NO_TASK
+bool executed [ nTasks ] // marks executed tasks ; initially 0 ( false )
+const int P // number of workers
+deque < task > q[ P] // double - ended queue per worker ; initially empty
+// entry point for each worker ( calling this concurrently )
+void main ( int i) // i = ID of the worker ; 0 for the initial worker
+if i = 0 // the worker who starts things off
+push_bottom (q [i], ROOT_TASK )
+repeat // until termination
+if ( empty (q[i ]) ) // if out of work , try to acquire a task
+acquire (i) // scheme - dependent function ; see later
+else // pick a task and execute it
+task t = pop_bottom (q [i ])
+communicate (i ) // scheme - dependent function ; see later
+execute (i , t)
+// execution of a task t by worker i
+void execute ( int i , task t)
+// perform some task - specific computation ; omitted for simplicity
+executed [ t] += 1 // flag the task as executed
+// then schedule the subtasks
+add_task (i , subtask [t ][1])
+add_task (i , subtask [t ][0])
+// called for scheduling a task t into worker i’s queue
+void add_task ( int i , task t)
+if t != NO_TASK
+push_bottom (q [i], t)
+The array subtask (which is never mutated in the code; you may assume this
+to be immutable if it helps you) expresses the tree structure of tasks: looking
+up a task’s ID in the array gives an array with two elements, storing the task
+IDs of its respective subtasks (or the special value NO TASK).
+We assume an existing suitable implementation of a double-ended queue (the
+deque type in our pseudo code). You do not need to implement this type for
+these challenges. However, since the code we are concerned with interacts with
+these queues, you will need specifications for five functions on these queues:
+empty(Q) returning a boolean indicating whether the queue Q is empty.
+peek top(Q) returning the element at the start of Q (without removing it).
+pop top(Q) removing the top element from Q and returning it.
+push bottom(Q,T) which modifies the queue Q, adding the task T at the end.
+pop bottom(Q) removing the bottom/end element from Q and returning it.
+The variation between different task-handling schemes is expressed by changing (only) the implementations of the acquire and communicate functions.

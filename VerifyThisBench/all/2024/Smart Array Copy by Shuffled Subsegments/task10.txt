@@ -1,0 +1,8 @@
+(e) We adapt our previous scheme for copying subsegments to incorporate
+a second permutation τ of the same values {0, 1, 2, . . . , l−1}. For each
+segment, we generate a random pair of permutations σ and τ ; as before,
+we use σ to choose the order of indices of subsegments to be copied from
+the segment of SRC (as before); we then further apply the permutation τ to
+this subsegment index to obtain the subsegment copied to in DEST. That
+is, the new scheme is to copy first subsegment σ(0) in SRC to subsegment
+τ (σ(0)) in DEST, then subsegment σ(1) to τ (σ(0)), and so on.

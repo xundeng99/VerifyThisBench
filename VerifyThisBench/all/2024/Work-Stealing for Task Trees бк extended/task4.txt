@@ -1,0 +1,1 @@
+(d) Verify that every task is executed at most once.

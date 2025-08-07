@@ -1,0 +1,2 @@
+Verification tasks. Verify the following properties:
+3. merge merges correctly (permutation and sortedness)

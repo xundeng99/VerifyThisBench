@@ -1,0 +1,2 @@
+3. Optional task (advanced): Verify that an in-order traversal of the tree
+traverses elements in the same order as in the sequence.

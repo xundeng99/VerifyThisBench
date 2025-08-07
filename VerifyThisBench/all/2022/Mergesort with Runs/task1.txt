@@ -1,0 +1,1 @@
+Implementation task. Implement the merge and msort functions. Implement the array, T, and size_t types in any way that fits the tool you are using. If you cannot handle fixed bit-width types, you may use arbitrary precision integers for size_t. If you cannot handle generic types or type-classes, you may fix T to some concrete type, e.g., integer

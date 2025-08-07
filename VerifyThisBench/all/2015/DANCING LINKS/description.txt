@@ -1,0 +1,18 @@
+Dancing links is a technique introduced in 1979 by Hitotumatu and
+Noshita and later popularized by Knuth. The technique can be used to
+efficiently implement a search for all solutions of the exact cover
+problem, which in its turn can be used to solve Tiling, Sudoku,
+N-Queens, and other problems.
+
+The technique
+-------------
+Suppose x points to a node of a doubly linked list; let L[x] and R[x]
+point to the predecessor and successor of that node. Then the operations
+L[R[x]] := L[x];
+R[L[x]] := R[x];
+remove x from the list. The subsequent operations
+L[R[x]] := x;
+R[L[x]] := x;
+will put x back into the list again.
+A graphical illustration of the process is available at
+http://formal.iti.kit.edu/~klebanov/DLX.png
