@@ -39,19 +39,19 @@ Read the paper: [arXiv:2505.19271](https://arxiv.org/abs/2505.19271)
 ### Dataset structure
 - `/VerifyThisBench`: Main benchmark organized by **year**
   - Each challenge includes:
-    - `description.txt`: natural language problem statement
-    - Sub-task files for implementation, specification, and invariants
+    - `description.txt`: natural language problem description
+    - Sub-task files 
 
 - `/VerifyThisBenchXS`: Relaxed benchmark with **partial solutions**
   - Organized by **year** and **tool**
   - Variants include:
     - `fill-implementation`, `fill-specification`, `fill-loop-invariant`
-    - Files with `split` provide partial input to the LLM
-    - `solution.*`: human-written reference solution
+    - Files with `split` provide partial solution of that form
+    - `solution.*`: human-written solution
 
 - Other directories:
-  - `/prompts`: example system and instruction prompts
-  - `/envs`: Dockerfiles for tool-specific sandbox environments
+  - `/prompts`: example system and coherence prompts
+  - `/envs`: Dockerfiles for tool-specific environments
   - `/scripts`: scripts for querying and evaluating LLMs
 
 ### Example Usage
